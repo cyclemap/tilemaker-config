@@ -1,5 +1,9 @@
 /tilemaker/
 /*.osm.pbf
+/*.pmtiles
 /store/
 /coastline/
 /landcover/
+
+/logs/
+/publish.sh
