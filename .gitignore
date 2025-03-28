@@ -1,7 +1,7 @@
 /tilemaker/
 /*.osm.pbf
 /*.pmtiles
-/store/
+/store-*/
 /coastline/
 /landcover/
 

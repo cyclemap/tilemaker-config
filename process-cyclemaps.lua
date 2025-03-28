@@ -47,8 +47,8 @@ INVALID_ZOOM = 99
 
 -- Process node/way tags
 aerodromeValues = Set { "international", "public", "regional", "military", "private" }
-pavedValues = Set { "paved", "asphalt", "cobblestone", "concrete", "concrete:lanes", "concrete:plates", "metal", "paving_stones", "sett", "unhewn_cobblestone", "wood" }
-unpavedValues = Set { "unpaved", "compacted", "dirt", "earth", "fine_gravel", "grass", "grass_paver", "gravel", "gravel_turf", "ground", "ice", "mud", "pebblestone", "salt", "sand", "snow", "woodchips" }
+unpavedValues = Set { "unpaved", "artificial_turf", "clay", "compacted", "crushed_limestone", "dirt", "dirt/sand", "earth", "fine_gravel", "grass", "grass_paver", "gravel", "gravel_turf", "ground", "ice", "mud", "pebblestone", "rock", "rocky", "rocks", "salt", "sand", "shells", "snow", "soil", "stepping_stones", "stone", "woodchips" }
+pavedValues = Set { "paved", "acrylic", "asphalt", "brick", "bricks", "cement", "chipseal", "cobblestone", "concrete", "concrete:lanes", "concrete:plates", "granite", "interlock", "metal", "metal_grid", "paving_stones", "plastic", "rubber", "sett", "tartan", "unhewn_cobblestone", "wood", "grade1" }
 
 -- Process node tags
 
@@ -217,10 +217,10 @@ end
 
 -- Process way tags
 
-majorRoadValues = Set { "motorway", "trunk", "primary" }
+majorRoadValues = Set { "motorway", "trunk", "primary", "cycleway" }
 z9RoadValues  = Set { "secondary", "motorway_link", "trunk_link" }
 z10RoadValues  = Set { "primary_link", "secondary_link" }
-z11RoadValues   = Set { "tertiary", "tertiary_link", "busway", "bus_guideway" }
+z11RoadValues   = Set { "tertiary", "tertiary_link", "busway", "bus_guideway", "cyclefriendly" }
 -- On zoom 12, various road classes are merged into "minor"
 z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street" }
 z12OtherRoadValues = Set { "raceway" }
@@ -228,8 +228,6 @@ z13RoadValues     = Set { "track", "service" }
 manMadeRoadValues = Set { "pier", "bridge" }
 pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform" }
 linkValues      = Set { "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link" }
-pavedValues     = Set { "paved", "asphalt", "cobblestone", "concrete", "concrete:lanes", "concrete:plates", "metal", "paving_stones", "sett", "unhewn_cobblestone", "wood" }
-unpavedValues   = Set { "unpaved", "compacted", "dirt", "earth", "fine_gravel", "grass", "grass_paver", "gravel", "gravel_turf", "ground", "ice", "mud", "pebblestone", "salt", "sand", "snow", "woodchips" }
 railwayClasses  = { rail="rail", narrow_gauge="rail", preserved="rail", funicular="rail", subway="transit", light_rail="transit", monorail="transit", tram="transit" }
 
 aerowayBuildings= Set { "terminal", "gate", "tower" }
@@ -246,7 +244,7 @@ landcoverKeys   = { wood="wood", forest="wood",
 
 -- POI key/value pairs: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/mapping.yaml
 poiTags         = { aerialway = Set { "station" },
-					amenity = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking", "bicycle_rental", "bicycle_repair_station", "biergarten", "bus_station", "cafe", "cinema", "clinic", "college", "community_centre", "compressed_air", "courthouse", "dentist", "doctors", "embassy", "fast_food", "ferry_terminal", "fire_station", "food_court", "fuel", "grave_yard", "hospital", "ice_cream", "kindergarten", "library", "marketplace", "motorcycle_parking", "nightclub", "nursing_home", "parking", "pharmacy", "place_of_worship", "police", "post_box", "post_office", "prison", "pub", "public_building", "recycling", "restaurant", "school", "shelter", "swimming_pool", "taxi", "telephone", "theatre", "toilets", "townhall", "university", "veterinary", "waste_basket" },
+					amenity = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking", "bicycle_rental", "bicycle_repair_station", "biergarten", "bus_station", "cafe", "cinema", "clinic", "college", "community_centre", "compressed_air", "courthouse", "dentist", "doctors", "drinking_water", "embassy", "fast_food", "ferry_terminal", "fire_station", "food_court", "fuel", "grave_yard", "hospital", "ice_cream", "kindergarten", "library", "marketplace", "motorcycle_parking", "nightclub", "nursing_home", "parking", "pharmacy", "place_of_worship", "police", "post_box", "post_office", "prison", "pub", "public_building", "recycling", "restaurant", "school", "shelter", "swimming_pool", "taxi", "telephone", "theatre", "toilets", "townhall", "university", "veterinary", "waste_basket" },
 					barrier = Set { "bollard", "border_control", "cycle_barrier", "gate", "lift_gate", "sally_port", "stile", "toll_booth" },
 					building = Set { "dormitory" },
 					highway = Set { "bus_stop" },
@@ -314,6 +312,7 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 	if subclass and subclass ~= "" then
 		Attribute("subclass", subclass)
 	end
+	local accessMinzoom = 9
 	AttributeNumeric("layer", tonumber(Find("layer")) or 0, accessMinzoom)
 	SetBrunnelAttributes()
 	-- We do not write any other attributes for areas.
@@ -327,7 +326,6 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 	-- Service
 	if (is_rail or highway_class == "service") and (service and service ~="") then Attribute("service", service) end
 
-	local accessMinzoom = 9
 	if is_road then
 		local oneway = Find("oneway")
 		if oneway == "yes" or oneway == "1" then
@@ -336,13 +334,9 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 		if oneway == "-1" then
 			-- **** TODO
 		end
-		local surface = Find("surface")
-		local surfaceMinzoom = 12
-		if pavedValues[surface] then
-			Attribute("surface", "paved", surfaceMinzoom)
-		elseif unpavedValues[surface] then
-			Attribute("surface", "unpaved", surfaceMinzoom)
-		end
+		local surfaceMinzoom = 4
+		local surface = GetSurface()
+		if surface ~= "" then Attribute("surface", surface, surfaceMinzoom) end
 		if Holds("access") then Attribute("access", Find("access"), accessMinzoom) end
 		if Holds("bicycle") then Attribute("bicycle", Find("bicycle"), accessMinzoom) end
 		if Holds("foot") then Attribute("foot", Find("foot"), accessMinzoom) end
@@ -353,22 +347,132 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 	end
 end
 
+function GetSurface(highway)
+	local surface = Find("surface")
+	local highway = Find("highway")
+	local hiking = Find("hiking")
+	-- todo check all values, not just one
+	if unpavedValues[surface] then return "unpaved"
+	elseif pavedValues[surface] then return "paved"
+	elseif Find("smoothness") == "excellent" or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
+	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
+	
+	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
+	elseif Find("smoothness") == "good" then return "paved"
+
+	elseif highway == "track" then return "unpaved"
+	elseif hiking == "yes" or hiking == "designated" or hiking == "permissive" then return "unpaved"
+	
+	else return "" end
+
+end
+
 -- Process way tags
 
-function isCycleway(highway)
+function IsCycleway(highway)
+	if highway == "construction" then return false end
+
 	local bicycle = Find("bicycle")
-	if bicycle == "no" or bicycle == "private" or bicycle == "permit" then return false end
-	-- todo separate
+
+	if bicycle == "no" or bicycle == "private" or bicycle == "permit" then
+		return false
+	end
+
+	local cycleway = Find("cycleway")
+	local cyclewayLeft = Find("cycleway:left")
+	local cyclewayRight = Find("cycleway:right")
+	local cyclewayBoth = Find("cycleway:both")
+
+	if cycleway == "separate" or cyclewayLeft == "separate" or cyclewayRight == "separate" or cyclewayBoth == "separate" then
+		return false
+	end
+
 	if highway == "cycleway" then return true end
-	-- todo:  actually do the values
-	if Holds("cycleway") then return true end
-	-- todo:  handle roads and paths differently
-	if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" or bicycle == "customers" or bicycle == "designated" then return true end
+
+	local mtb = Find("mtb:scale")
+	if mtb ~= "" and mtb ~= "6" or
+		Holds("mtb:scale:imba") or Holds("mtb:type") or bicycle == "mtb" or Find("route") == "mtb" then
+			return true
+	end
+
+	if cycleway == "lane" or cycleway == "opposite_lane" or cycleway == "opposite" or cycleway == "share_busway" or cycleway == "opposite_share_busway" or cycleway == "shared" or cycleway == "track" or cycleway == "opposite_track" or
+		cyclewayLeft == "lane" or cyclewayLeft == "opposite_lane" or cyclewayLeft == "opposite" or cyclewayLeft == "share_busway" or cyclewayLeft == "opposite_share_busway" or cyclewayLeft == "shared" or cyclewayLeft == "track" or cyclewayLeft == "opposite_track" or
+		cyclewayRight == "lane" or cyclewayRight == "opposite_lane" or cyclewayRight == "opposite" or cyclewayRight == "share_busway" or cyclewayRight == "opposite_share_busway" or cyclewayRight == "shared" or cyclewayRight == "track" or cyclewayRight == "opposite_track" or
+		cyclewayBoth == "lane" or cyclewayBoth == "opposite_lane" or cyclewayBoth == "opposite" or cyclewayBoth == "share_busway" or cyclewayBoth == "opposite_share_busway" or cyclewayBoth == "shared" or cyclewayBoth == "track" or cyclewayBoth == "opposite_track" then
+		return true
+	end
+
+	if Find("oneway") == "yes" and Find("oneway:bicycle") == "no" then return true end
+
+	if (highway == "pedestrian" or highway == "living_street" or highway == "path" or highway == "footway" or highway == "steps" or highway == "bridleway" or highway == "corridor" or highway == "track") and (
+		bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" or bicycle == "customers" or bicycle == "designated" or
+		Holds("ramp:bicycle") and Find("ramp:bicycle") ~= "no" or
+		Find("icn") == "yes" or Holds("icn_ref") or
+		Find("ncn") == "yes" or Holds("ncn_ref") or
+		Find("rcn") == "yes" or Holds("rcn_ref") or
+		Find("lcn") == "yes" or Holds("lcn_ref") or
+		Find("route") == "bicycle"
+	) then
+		return true
+	end
+
+	-- todo sport can have multiple values.  match against (;|^)cycling(;|$)
+	if Find("sport") == "cycling" then return true end
+
 	return false
 end
 
-function isCycleFriendly(cycleway)
+function IsMaxSpeedLow()
+	-- todo
 	return false
+end
+
+function IsWideOrUnknown()
+	-- todo
+	return false
+end
+
+function IsMaxSpeedVeryLow()
+	-- todo
+	return false
+end
+
+function IsCycleFriendly(highway)
+	if highway == "construction" then return false end
+
+	local bicycle = Find("bicycle")
+	if bicycle == "no" or bicycle == "private" or bicycle == "permit" then return false end
+
+	if Find("cycleway") == "separate" or
+		Find("cycleway:left") == "separate" or
+		Find("cycleway:right") == "separate" or
+		Find("cycleway:both") == "separate" then return false end
+
+	if bicycle == "customers" or bicycle == "designated" then return true end
+
+	if Find("cycleway") == "shared_lane" or
+		Find("cycleway:left") == "shared_lane" or
+		Find("cycleway:right") == "shared_lane" or
+		Find("cycleway:both") == "shared_lane" then return true end
+
+	if Find("icn") == "yes" or Holds("icn_ref") or
+		Find("ncn") == "yes" or Holds("ncn_ref") or
+		Find("rcn") == "yes" or Holds("rcn_ref") or
+		Find("lcn") == "yes" or Holds("lcn_ref") or
+		Find("route") == "bicycle" then
+			return true
+	end
+
+	if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" then
+		if highway == "residential" or highway == "service" or highway == "unclassified" or
+			IsMaxSpeedLow() and IsWideOrUnknown() or
+			IsMaxSpeedVeryLow() then
+			return true
+		end
+	end
+	
+	return false
+
 end
 
 function way_function()
@@ -476,6 +580,9 @@ function way_function()
 		local surface = Find("surface")
 
 		local h = highway
+		if IsCycleway(h) then h = 'cycleway'
+		elseif IsCycleFriendly(h) then h = 'cyclefriendly' end
+
 		local is_road = true
 		if h == "" then
 			h = public_transport
@@ -488,7 +595,7 @@ function way_function()
 			under_construction = true
 		end
 		local minzoom = INVALID_ZOOM
-		if majorRoadValues[h] or isCycleway(h) then minzoom = 4
+		if majorRoadValues[h]        then minzoom = 4
 		elseif h == "trunk"          then minzoom = 5
 		elseif highway == "primary"  then minzoom = 7
 		elseif z9RoadValues[h]       then minzoom = 9
@@ -537,7 +644,7 @@ function way_function()
 
 			-- Write names
 			if not is_closed and (HasNames() or Holds("ref")) then
-				if h == "motorway" or isCycleway(h) then
+				if h == "motorway" or IsCycleway(h) then
 					minzoom = 7
 				elseif h == "trunk" then
 					minzoom = 8
@@ -928,11 +1035,11 @@ function SetZOrder()
 	end
 	local hwClass = 0
 	-- See https://github.com/omniscale/imposm3/blob/53bb80726ca9456e4a0857b38803f9ccfe8e33fd/mapping/columns.go#L251
-	if highway == "motorway" or isCycleway(highway) then
+	if highway == "motorway" or IsCycleway(highway) then
 		hwClass = 9
 	elseif highway == "trunk" then
 		hwClass = 8
-	elseif highway == "primary" then
+	elseif highway == "primary" or IsCycleFriendly(highway) then
 		hwClass = 6
 	elseif highway == "secondary" then
 		hwClass = 5
