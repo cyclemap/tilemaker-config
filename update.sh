@@ -10,8 +10,14 @@ output=$name-$date.pmtiles
 published=$name.pmtiles
 
 exec &> >(tee >(\
-	sed s//\\$'\n'/g |
-	egrep -v '^(Store size|(osm|shp): finalizing z6 tile|z.*, writing tile |^  *[0-9]*% \|\| |^ *$)' \
+	sed \
+		--unbuffered \
+		--expression=s//\\$'\n'/g \
+	|
+	egrep
+		--line-buffered \
+		--invert \
+		'^(Store size|(osm|shp): finalizing z6 tile|z.*, writing tile |^  *[0-9]*% \|\| |^ *$)' \
 	>>"logs/update-$name.log"
 ))
 
