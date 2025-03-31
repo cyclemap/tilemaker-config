@@ -1,9 +1,11 @@
 /tilemaker/
 /*.osm.pbf
 /*.pmtiles
+/osmupdate_temp/
 /store-*/
 /coastline/
 /landcover/
 
 /logs/
+/process.sh
 /publish.sh

@@ -14,7 +14,7 @@ exec &> >(tee >(\
 		--unbuffered \
 		--expression=s//\\$'\n'/g \
 	|
-	egrep
+	egrep \
 		--line-buffered \
 		--invert \
 		'^(Store size|(osm|shp): finalizing z6 tile|z.*, writing tile |^  *[0-9]*% \|\| |^ *$)' \
@@ -50,10 +50,17 @@ function makeTiles() {
 		--output $output \
 		--config config-cyclemaps.json \
 		--process process-cyclemaps.lua
+	
+	wc --bytes $output
+	ls --size --human-readable $output
 
 	dockerRun \
 		protomaps/go-pmtiles \
 		cluster --no-deduplication $output
+	
+	wc --bytes $output
+	ls --size --human-readable $output
+
 	echo make tiles:  done at $(date --iso-8601=seconds)
 }
 
@@ -66,7 +73,8 @@ echo 'to update:  for tag in openmaptiles/openmaptiles-tools:7.1 ghcr.io/systeme
 #tilemaker/get-coastline.sh
 #rm --force {landcover,coastline}/*.zip
 
-#updateInput
+if [ -x process.sh ]; then ./process.sh; fi
+updateInput
 makeTiles
 if [ -x publish.sh ]; then ./publish.sh $output $published; fi
 
