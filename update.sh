@@ -22,9 +22,21 @@ exec &> >(tee >(\
 ))
 
 function dockerRun() {
+	#TODO:  blkio-weight works without device-read-bps and without device-write-bps???
+	#TODO:  if not, /dev/sdc lookup should be automatic
+	#TODO:  bps is bytes:  400 megabytes / second is my laughably old drive throughput
+	#sdc (root) / sdb (docker):  Samsung SSD 850 EVO 1TB:  430 megabytes / second write
+	#sda (bak):  Samsung SSD 840 EVO 1TB:  360 megabytes / second write
 	time docker run \
+		--memory='18g' \
+		--memory-swap='24g' \
+		--cpus=3 \
+		--blkio-weight=100 \
+		--device-read-bps=/dev/sdc:300mb \
+		--device-write-bps=/dev/sdc:300mb \
 		--rm \
-		-it \
+		--interactive \
+		--tty \
 		--user=$(id -u):$(id -g) \
 		--volume $PWD:/data \
 		--workdir /data \
