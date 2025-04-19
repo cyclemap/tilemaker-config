@@ -9,6 +9,8 @@ input=$name.osm.pbf
 output=$name-$date.pmtiles
 published=$name.pmtiles
 
+# wget https://planet.openstreetmap.org/pbf/planet-latest.osm.pbf && \mv {planet-latest,cyclemaps}.osm.pbf
+
 exec &> >(tee >(\
 	sed \
 		--unbuffered \
@@ -28,9 +30,9 @@ function dockerRun() {
 	#sdc (root) / sdb (docker):  Samsung SSD 850 EVO 1TB:  430 megabytes / second write
 	#sda (bak):  Samsung SSD 840 EVO 1TB:  360 megabytes / second write
 	time docker run \
-		--memory='18g' \
-		--memory-swap='24g' \
-		--cpus=3 \
+		--memory='19g' \
+		--memory-swap='30g' \
+		--cpus=4 \
 		--blkio-weight=100 \
 		--device-read-bps=/dev/sdc:300mb \
 		--device-write-bps=/dev/sdc:300mb \
@@ -55,6 +57,9 @@ function updateInput() {
 
 function makeTiles() {
 	echo make tiles:  started at $(date --iso-8601=seconds)
+	echo tilemaker version $(docker inspect ghcr.io/systemed/tilemaker:master |
+		jq --raw-output '.[0].Config.Labels |
+			(."org.opencontainers.image.created"[:10] + " " + ."org.opencontainers.image.revision"[:7])')
 	dockerRun \
 		ghcr.io/systemed/tilemaker:master \
 		$input \
