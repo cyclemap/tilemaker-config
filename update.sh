@@ -34,6 +34,8 @@ function dockerRun() {
 		--memory-swap='30g' \
 		--cpus=4 \
 		--blkio-weight=100 \
+		--device-read-bps=/dev/sdb:300mb \
+		--device-write-bps=/dev/sdb:300mb \
 		--device-read-bps=/dev/sdc:300mb \
 		--device-write-bps=/dev/sdc:300mb \
 		--rm \
@@ -61,9 +63,10 @@ function makeTiles() {
 		jq --raw-output '.[0].Config.Labels |
 			(."org.opencontainers.image.created"[:10] + " " + ."org.opencontainers.image.revision"[:7])')
 	dockerRun \
+		--volume /mnt/docker/tilemaker:/tmp/tilemaker \
 		ghcr.io/systemed/tilemaker:master \
 		$input \
-		--store store-$name \
+		--store /tmp/tilemaker/store-$name \
 		--output $output \
 		--config config-cyclemaps.json \
 		--process process-cyclemaps.lua

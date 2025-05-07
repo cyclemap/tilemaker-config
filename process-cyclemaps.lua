@@ -354,7 +354,9 @@ function GetSurface()
 	-- todo check all values, not just one
 	if unpavedValues[surface] then return "unpaved"
 	elseif pavedValues[surface] then return "paved"
-	elseif Find("smoothness") == "excellent" or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
+	elseif surface.find(";unpaved;") != nil or surface.find(";unpaved$") != nil or surface.find("^unpaved;") != nil then return "unpaved"
+	elseif surface.find(";gravel;") != nil or surface.find(";gravel$") != nil or surface.find("^gravel;") != nil then return "unpaved"
+	elseif Find("smoothness") == "excellent" or Find("smoothness") == "good"  or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
 	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
 	
 	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
