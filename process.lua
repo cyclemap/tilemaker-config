@@ -217,10 +217,11 @@ end
 
 -- Process way tags
 
-majorRoadValues = Set { "motorway", "trunk", "primary", "cycleway" }
-z9RoadValues  = Set { "secondary", "motorway_link", "trunk_link" }
-z10RoadValues  = Set { "primary_link", "secondary_link" }
-z11RoadValues   = Set { "tertiary", "tertiary_link", "busway", "bus_guideway", "cyclefriendly" }
+z5RoadValues = Set { "cycleway" }
+z7RoadValues = Set { "motorway", "trunk", "primary" }
+z9RoadValues = Set { "secondary", "motorway_link", "trunk_link" }
+z10RoadValues = Set { "primary_link", "secondary_link" }
+z11RoadValues = Set { "tertiary", "tertiary_link", "busway", "bus_guideway", "cyclefriendly" }
 -- On zoom 12, various road classes are merged into "minor"
 z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street" }
 z12OtherRoadValues = Set { "raceway" }
@@ -548,7 +549,7 @@ function way_function()
 	-- https://openmaptiles.org/schema/#boundary
 	if isBoundary and not (Find("maritime")=="yes") then
 		local mz = 0
-		if     admin_level>=3 and admin_level<5 then mz=4
+		if     admin_level>=3 and admin_level<5 then mz=3
 		elseif admin_level>=5 and admin_level<7 then mz=8
 		elseif admin_level==7 then mz=10
 		elseif admin_level>=8 then mz=12
@@ -599,9 +600,8 @@ function way_function()
 			under_construction = true
 		end
 		local minzoom = INVALID_ZOOM
-		if majorRoadValues[h]        then minzoom = 4
-		elseif h == "trunk"          then minzoom = 5
-		elseif highway == "primary"  then minzoom = 7
+		if z5RoadValues[h]           then minzoom = 5
+		elseif z7RoadValues[h]       then minzoom = 7
 		elseif z9RoadValues[h]       then minzoom = 9
 		elseif z10RoadValues[h]      then minzoom = 10
 		elseif z11RoadValues[h]      then minzoom = 11

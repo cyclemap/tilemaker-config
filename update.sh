@@ -68,8 +68,8 @@ function makeTiles() {
 		$input \
 		--store /tmp/tilemaker/store-$name \
 		--output $output \
-		--config config-cyclemaps.json \
-		--process process-cyclemaps.lua
+		--config config.json \
+		--process process.lua
 	
 	wc --bytes $output
 	ls --size --human-readable $output
