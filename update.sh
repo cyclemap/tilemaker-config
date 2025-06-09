@@ -4,7 +4,7 @@ set -e #exit on failure
 set -x #print out commands
 
 date=$(date --iso-8601)
-name=${NAME:-tilemaker}
+name=${NAME:-cyclemaps}
 input=$name.osm.pbf
 output=$name-$date.pmtiles
 published=$name.pmtiles
