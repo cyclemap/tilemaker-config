@@ -358,6 +358,7 @@ function GetSurface()
 	if unpavedValues[surface] then return "unpaved"
 	elseif pavedValues[surface] then return "paved"
 	elseif string.find(surface, ";unpaved;") ~= nil or string.find(surface, ";unpaved$") ~= nil or string.find(surface, "^unpaved;") ~= nil then return "unpaved"
+	elseif string.find(surface, ";dirt;") ~= nil or string.find(surface, ";dirt$") ~= nil or string.find(surface, "^dirt;") ~= nil then return "unpaved"
 	elseif string.find(surface, ";gravel;") ~= nil or string.find(surface, ";gravel$") ~= nil or string.find(surface, "^gravel;") ~= nil then return "unpaved"
 	elseif Find("smoothness") == "excellent" or Find("smoothness") == "good"  or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
 	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
