@@ -3,7 +3,8 @@
 set -e #exit on failure
 set -x #print out commands
 
-date=$(date --iso-8601)
+updateInput=${UPDATE_INPUT:-yes}
+date=$(date --rfc-3339=date)
 name=${NAME:-cyclemaps}
 input=$name.osm.pbf
 output=$name-$date.pmtiles
@@ -48,20 +49,22 @@ function dockerRun() {
 }
 
 function updateInput() {
-	echo updating:  started at $(date --iso-8601=seconds)
+	echo updating:  started at $(date --rfc-3339=seconds)
 	dockerRun \
 		openmaptiles/openmaptiles-tools:7.1 \
 		osmupdate --verbose $input $input-new.osm.pbf
 	#mv --force $input $input-old.osm.pbf
 	mv --force $input-new.osm.pbf $input
-	echo updating:  done at $(date --iso-8601=seconds)
+	echo updating:  done at $(date --rfc-3339=seconds)
 }
 
 function makeTiles() {
-	echo make tiles:  started at $(date --iso-8601=seconds)
+	echo make tiles:  started at $(date --rfc-3339=seconds)
 	echo tilemaker version $(docker inspect ghcr.io/systemed/tilemaker:master |
 		jq --raw-output '.[0].Config.Labels |
 			(."org.opencontainers.image.created"[:10] + " " + ."org.opencontainers.image.revision"[:7])')
+	#note on memory:  --store needs to exist unless you have somewhere around 256gb of ram
+	#even with --store, you need somewhere around 32-40gb of memory with swap
 	dockerRun \
 		--volume /mnt/docker/tilemaker:/tmp/tilemaker \
 		ghcr.io/systemed/tilemaker:master \
@@ -81,7 +84,7 @@ function makeTiles() {
 	wc --bytes $output
 	ls --size --human-readable $output
 
-	echo make tiles:  done at $(date --iso-8601=seconds)
+	echo make tiles:  done at $(date --rfc-3339=seconds)
 }
 
 
@@ -94,8 +97,11 @@ echo 'to update:  for tag in openmaptiles/openmaptiles-tools:7.1 ghcr.io/systeme
 #rm --force {landcover,coastline}/*.zip
 
 if [ -x process.sh ]; then ./process.sh; fi
-updateInput
+if [ "$updateInput" == "yes" ]; then updateInput; fi
 makeTiles
 if [ -x publish.sh ]; then ./publish.sh $output $published; fi
+
+
+echo done at $(date --rfc-3339=seconds)
 
 

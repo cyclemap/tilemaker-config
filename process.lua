@@ -3,6 +3,8 @@
 -- Copyright (c) 2016, KlokanTech.com & OpenMapTiles contributors.
 -- Used under CC-BY 4.0
 
+require "cyclemaps"
+
 --------
 -- Alter these lines to control which languages are written for place/streetnames
 --
@@ -17,7 +19,7 @@ additional_languages = { }
 --------
 
 -- Enter/exit Tilemaker
-function init_function()
+function init_function(name,is_first)
 end
 function exit_function()
 end
@@ -30,6 +32,8 @@ function Set(list)
 end
 
 -- Meters per pixel if tile is 256x256
+ZRES3  = 19567.88
+ZRES4  = 9783.94
 ZRES5  = 4891.97
 ZRES6  = 2445.98
 ZRES7  = 1222.99
@@ -64,7 +68,7 @@ function capitalLevel(capital)
 	if capital_al == 0 then
 		return nil
 	end
-				return capital_al
+	return capital_al
 end
 
 -- Calculate rank for place nodes
@@ -96,7 +100,7 @@ function calcRank(place, population, capital_al)
 	end
 	if place ~= "city" and place ~= "town" then
 		return nil
-				end
+	end
 	if population > 3 * 10^6 then
 		return 1
 	elseif population > 1 * 10^6 then
@@ -217,6 +221,7 @@ end
 
 -- Process way tags
 
+z4RoadValues = Set { }
 z5RoadValues = Set { "cycleway" }
 z7RoadValues = Set { "motorway", "trunk", "primary" }
 z9RoadValues = Set { "secondary", "motorway_link", "trunk_link" }
@@ -233,15 +238,15 @@ railwayClasses  = { rail="rail", narrow_gauge="rail", preserved="rail", funicula
 
 aerowayBuildings= Set { "terminal", "gate", "tower" }
 landuseKeys     = Set { "school", "university", "kindergarten", "college", "library", "hospital",
-						            "railway", "cemetery", "military", "residential", "commercial", "industrial",
-						            "retail", "stadium", "pitch", "playground", "theme_park", "bus_station", "zoo" }
+                        "railway", "cemetery", "military", "residential", "commercial", "industrial",
+                        "retail", "stadium", "pitch", "playground", "theme_park", "bus_station", "zoo" }
 landcoverKeys   = { wood="wood", forest="wood",
-						        wetland="wetland",
-						        beach="sand", sand="sand", dune="sand",
-						        farmland="farmland", farm="farmland", orchard="farmland", vineyard="farmland", plant_nursery="farmland",
-						        glacier="ice", ice_shelf="ice",
-						        bare_rock="rock", scree="rock",
-						        fell="grass", grassland="grass", grass="grass", heath="grass", meadow="grass", allotments="grass", park="grass", village_green="grass", recreation_ground="grass", scrub="grass", shrubbery="grass", tundra="grass", garden="grass", golf_course="grass", park="grass" }
+                    wetland="wetland",
+                    beach="sand", sand="sand", dune="sand",
+                    farmland="farmland", farm="farmland", orchard="farmland", vineyard="farmland", plant_nursery="farmland",
+                    glacier="ice", ice_shelf="ice",
+                    bare_rock="rock", scree="rock",
+                    fell="grass", grassland="grass", grass="grass", heath="grass", meadow="grass", allotments="grass", park="grass", village_green="grass", recreation_ground="grass", scrub="grass", shrubbery="grass", tundra="grass", garden="grass", golf_course="grass", park="grass" }
 
 -- POI key/value pairs: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/mapping.yaml
 poiTags         = { aerialway = Set { "station" },
@@ -351,16 +356,19 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 end
 
 function GetSurface()
-	local surface = Find("surface")
+	local surface = split(Find("surface"), ";")
+	-- prioritize unpaved
+	for _, surfaceEntry in ipairs(surface) do
+		if unpavedValues[surfaceEntry] then return "unpaved" end
+	end
+	for _, surfaceEntry in ipairs(surface) do
+		if pavedValues[surfaceEntry] then return "paved" end
+	end
+	
 	local highway = Find("highway")
 	local hiking = Find("hiking")
-	-- todo check all values, not just one
-	if unpavedValues[surface] then return "unpaved"
-	elseif pavedValues[surface] then return "paved"
-	elseif string.find(surface, ";unpaved;") ~= nil or string.find(surface, ";unpaved$") ~= nil or string.find(surface, "^unpaved;") ~= nil then return "unpaved"
-	elseif string.find(surface, ";dirt;") ~= nil or string.find(surface, ";dirt$") ~= nil or string.find(surface, "^dirt;") ~= nil then return "unpaved"
-	elseif string.find(surface, ";gravel;") ~= nil or string.find(surface, ";gravel$") ~= nil or string.find(surface, "^gravel;") ~= nil then return "unpaved"
-	elseif Find("smoothness") == "excellent" or Find("smoothness") == "good"  or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
+	
+	if Find("smoothness") == "excellent" or Find("smoothness") == "good"  or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
 	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
 	
 	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
@@ -368,118 +376,12 @@ function GetSurface()
 
 	elseif highway == "track" then return "unpaved"
 	elseif hiking == "yes" or hiking == "designated" or hiking == "permissive" then return "unpaved"
-	
-	else return "" end
+	end
 
+	return ""
 end
 
 -- Process way tags
-
-function IsCycleway(highway)
-	if highway == "construction" then return false end
-
-	local bicycle = Find("bicycle")
-
-	if bicycle == "no" or bicycle == "private" or bicycle == "permit" then
-		return false
-	end
-
-	local cycleway = Find("cycleway")
-	local cyclewayLeft = Find("cycleway:left")
-	local cyclewayRight = Find("cycleway:right")
-	local cyclewayBoth = Find("cycleway:both")
-
-	if cycleway == "separate" or cyclewayLeft == "separate" or cyclewayRight == "separate" or cyclewayBoth == "separate" then
-		return false
-	end
-
-	if highway == "cycleway" then return true end
-
-	local mtb = Find("mtb:scale")
-	if mtb ~= "" and mtb ~= "6" or
-		Holds("mtb:scale:imba") or Holds("mtb:type") or bicycle == "mtb" or Find("route") == "mtb" then
-			return true
-	end
-
-	if cycleway == "lane" or cycleway == "opposite_lane" or cycleway == "opposite" or cycleway == "share_busway" or cycleway == "opposite_share_busway" or cycleway == "shared" or cycleway == "track" or cycleway == "opposite_track" or
-		cyclewayLeft == "lane" or cyclewayLeft == "opposite_lane" or cyclewayLeft == "opposite" or cyclewayLeft == "share_busway" or cyclewayLeft == "opposite_share_busway" or cyclewayLeft == "shared" or cyclewayLeft == "track" or cyclewayLeft == "opposite_track" or
-		cyclewayRight == "lane" or cyclewayRight == "opposite_lane" or cyclewayRight == "opposite" or cyclewayRight == "share_busway" or cyclewayRight == "opposite_share_busway" or cyclewayRight == "shared" or cyclewayRight == "track" or cyclewayRight == "opposite_track" or
-		cyclewayBoth == "lane" or cyclewayBoth == "opposite_lane" or cyclewayBoth == "opposite" or cyclewayBoth == "share_busway" or cyclewayBoth == "opposite_share_busway" or cyclewayBoth == "shared" or cyclewayBoth == "track" or cyclewayBoth == "opposite_track" then
-		return true
-	end
-
-	if Find("oneway") == "yes" and Find("oneway:bicycle") == "no" then return true end
-
-	if GetSurface() == "unpaved" or highway == "pedestrian" or highway == "living_street" or highway == "path" or highway == "footway" or highway == "steps" or highway == "bridleway" or highway == "corridor" or highway == "track" then
-		if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" or bicycle == "customers" or bicycle == "designated" or
-			Holds("ramp:bicycle") and Find("ramp:bicycle") ~= "no" or
-			Find("icn") == "yes" or Holds("icn_ref") or
-			Find("ncn") == "yes" or Holds("ncn_ref") or
-			Find("rcn") == "yes" or Holds("rcn_ref") or
-			Find("lcn") == "yes" or Holds("lcn_ref") or
-			Find("route") == "bicycle" then
-			return true
-		end
-	end
-
-	-- todo sport can have multiple values.  match against (;|^)cycling(;|$)
-	if Find("sport") == "cycling" then return true end
-
-	return false
-end
-
-function IsMaxSpeedLow()
-	-- todo
-	return false
-end
-
-function IsWideOrUnknown()
-	-- todo
-	return false
-end
-
-function IsMaxSpeedVeryLow()
-	-- todo
-	return false
-end
-
-function IsCycleFriendly(highway)
-	if highway == "construction" then return false end
-
-	local bicycle = Find("bicycle")
-	if bicycle == "no" or bicycle == "private" or bicycle == "permit" then return false end
-
-	if Find("cycleway") == "separate" or
-		Find("cycleway:left") == "separate" or
-		Find("cycleway:right") == "separate" or
-		Find("cycleway:both") == "separate" then return false end
-
-	if bicycle == "customers" or bicycle == "designated" then return true end
-
-	if Find("cycleway") == "shared_lane" or
-		Find("cycleway:left") == "shared_lane" or
-		Find("cycleway:right") == "shared_lane" or
-		Find("cycleway:both") == "shared_lane" then return true end
-
-	if Find("icn") == "yes" or Holds("icn_ref") or
-		Find("ncn") == "yes" or Holds("ncn_ref") or
-		Find("rcn") == "yes" or Holds("rcn_ref") or
-		Find("lcn") == "yes" or Holds("lcn_ref") or
-		Find("route") == "bicycle" then
-			return true
-	end
-
-	if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" then
-		if highway == "residential" or highway == "service" or highway == "unclassified" or
-			IsMaxSpeedLow() and IsWideOrUnknown() or
-			IsMaxSpeedVeryLow() then
-			return true
-		end
-	end
-	
-	return false
-
-end
 
 function way_function()
 	local route    = Find("route")
@@ -601,7 +503,8 @@ function way_function()
 			under_construction = true
 		end
 		local minzoom = INVALID_ZOOM
-		if z5RoadValues[h]           then minzoom = 5
+		if z4RoadValues[h]           then minzoom = 4
+		elseif z5RoadValues[h]       then minzoom = 5
 		elseif z7RoadValues[h]       then minzoom = 7
 		elseif z9RoadValues[h]       then minzoom = 9
 		elseif z10RoadValues[h]      then minzoom = 10
@@ -732,16 +635,16 @@ function way_function()
 
 	-- 'aerodrome_label'
 	if aeroway=="aerodrome" then
-	 	LayerAsCentroid("aerodrome_label")
-	 	SetNameAttributes()
-	 	Attribute("iata", Find("iata"))
-			SetEleAttributes()
- 	 	Attribute("icao", Find("icao"))
+		LayerAsCentroid("aerodrome_label")
+		SetNameAttributes()
+		Attribute("iata", Find("iata"))
+		SetEleAttributes()
+		Attribute("icao", Find("icao"))
 
- 	 	local aerodrome = Find(aeroway)
- 	 	local class
- 	 	if aerodromeValues[aerodrome] then class = aerodrome else class = "other" end
- 	 	Attribute("class", class)
+		local aerodrome = Find(aeroway)
+		local class
+		if aerodromeValues[aerodrome] then class = aerodrome else class = "other" end
+		Attribute("class", class)
 	end
 
 	-- Set 'waterway' and associated
@@ -790,7 +693,7 @@ function way_function()
 		local class="lake"; if waterway~="" then class="river" end
 		if class=="lake" and Find("wikidata")=="Q192770" then return end
 		Layer("water",true)
-		SetMinZoomByArea(way)
+		SetMinZoomByArea()
 		Attribute("class",class)
 
 		if Find("intermittent")=="yes" then Attribute("intermittent",1) end
@@ -877,7 +780,6 @@ end
 function WritePOI(class,subclass,rank)
 	local layer = "poi"
 	if rank>4 then layer="poi_detail" end
-	MinZoom(0)
 	LayerAsCentroid(layer)
 	SetNameAttributes()
 	AttributeNumeric("rank", rank)
@@ -931,13 +833,13 @@ end
 
 -- Set ele and ele_ft on any object
 function SetEleAttributes()
-		local ele = Find("ele")
+	local ele = Find("ele")
 	if ele ~= "" then
 		local meter = math.floor(tonumber(ele) or 0)
 		local feet = math.floor(meter * 3.2808399)
 		AttributeNumeric("ele", meter)
 		AttributeNumeric("ele_ft", feet)
-		end
+	end
 end
 
 function SetBrunnelAttributes()
@@ -955,7 +857,9 @@ end
 -- Set minimum zoom level by area but not below given minzoom
 function SetMinZoomByAreaWithLimit(minzoom)
 	local area=Area()
-	if     minzoom <= 6 and area>ZRES5^2  then MinZoom(6)
+	if     minzoom <= 4 and area>ZRES3^2  then MinZoom(4)
+	elseif minzoom <= 5 and area>ZRES4^2  then MinZoom(5)
+	elseif minzoom <= 6 and area>ZRES5^2  then MinZoom(6)
 	elseif minzoom <= 7 and area>ZRES6^2  then MinZoom(7)
 	elseif minzoom <= 8 and area>ZRES7^2  then MinZoom(8)
 	elseif minzoom <= 9 and area>ZRES8^2  then MinZoom(9)
