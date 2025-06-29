@@ -32,7 +32,10 @@ function Set(list)
 end
 
 -- Meters per pixel if tile is 256x256
-ZRES3  = 19567.88
+ZRES0 = 156542.97
+ZRES1  = 78271.48
+ZRES2  = 39135.74
+ZRES3  = 19567.87
 ZRES4  = 9783.94
 ZRES5  = 4891.97
 ZRES6  = 2445.98
@@ -368,11 +371,10 @@ function GetSurface()
 	local highway = Find("highway")
 	local hiking = Find("hiking")
 	
-	if Find("smoothness") == "excellent" or Find("smoothness") == "good"  or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
+	if Find("smoothness") == "excellent" or Find("smoothness") == "good" or Find("crossing") ~= "" or Find("footway") == "access_aisle" then return "paved"
 	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
 	
 	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
-	elseif Find("smoothness") == "good" then return "paved"
 
 	elseif highway == "track" then return "unpaved"
 	elseif hiking == "yes" or hiking == "designated" or hiking == "permissive" then return "unpaved"
@@ -857,7 +859,10 @@ end
 -- Set minimum zoom level by area but not below given minzoom
 function SetMinZoomByAreaWithLimit(minzoom)
 	local area=Area()
-	if     minzoom <= 4 and area>ZRES3^2  then MinZoom(4)
+	if     minzoom <= 1 and area>ZRES0^2  then MinZoom(1)
+	elseif minzoom <= 2 and area>ZRES1^2  then MinZoom(2)
+	elseif minzoom <= 3 and area>ZRES2^2  then MinZoom(3)
+	elseif minzoom <= 4 and area>ZRES3^2  then MinZoom(4)
 	elseif minzoom <= 5 and area>ZRES4^2  then MinZoom(5)
 	elseif minzoom <= 6 and area>ZRES5^2  then MinZoom(6)
 	elseif minzoom <= 7 and area>ZRES6^2  then MinZoom(7)
