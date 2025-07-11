@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e #exit on failure
-set -x #print out commands
 
 updateInput=${UPDATE_INPUT:-yes}
 date=$(date --rfc-3339=date)
@@ -89,8 +88,9 @@ function makeTiles() {
 
 
 
-
+echo '==='
 echo 'to update:  for tag in openmaptiles/openmaptiles-tools:7.1 ghcr.io/systemed/tilemaker:master protomaps/go-pmtiles; do docker pull $tag; done'
+set -x #print out commands
 
 #tilemaker/get-landcover.sh
 #tilemaker/get-coastline.sh
