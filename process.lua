@@ -358,31 +358,6 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 	end
 end
 
-function GetSurface()
-	local surface = split(Find("surface"), ";")
-	-- prioritize unpaved
-	for _, surfaceEntry in ipairs(surface) do
-		if unpavedValues[surfaceEntry] then return "unpaved" end
-	end
-	for _, surfaceEntry in ipairs(surface) do
-		if pavedValues[surfaceEntry] then return "paved" end
-	end
-	
-	local highway = Find("highway")
-	local hiking = Find("hiking")
-	
-	if Find("smoothness") == "excellent" or Find("smoothness") == "good" or Find("crossing") ~= "" or Find("footway") == "access_aisle" then return "paved"
-	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
-	
-	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
-
-	elseif highway == "track" then return "unpaved"
-	elseif hiking == "yes" or hiking == "designated" or hiking == "permissive" then return "unpaved"
-	end
-
-	return ""
-end
-
 -- Process way tags
 
 function way_function()

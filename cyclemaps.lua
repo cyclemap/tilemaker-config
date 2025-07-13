@@ -105,3 +105,31 @@ function IsCycleFriendly(highway)
 
 end
 
+function GetSurface()
+	local surface = split(Find("surface"), ";")
+	-- prioritize unpaved
+	for _, surfaceEntry in ipairs(surface) do
+		if unpavedValues[surfaceEntry] then return "unpaved" end
+	end
+	for _, surfaceEntry in ipairs(surface) do
+		if pavedValues[surfaceEntry] then return "paved" end
+	end
+	
+	local highway = Find("highway")
+	local smoothness = Find("smoothness")
+	
+	if smoothness == "excellent" or smoothness == "good" or Holds("crossing") or Find("footway") == "access_aisle" then return "paved"
+	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
+	
+	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
+
+	elseif highway == "track" or Holds("tracktype") and Find("tracktype") ~= "grade1" then return "unpaved"
+	elseif smoothness == "very_bad" or smoothness == "horrible" or smoothness == "very_horrible" or smoothness == "impassible" then return "unpaved"
+	elseif Holds("hiking") and Find("hiking") ~= "no" then return "unpaved"
+	elseif Holds("sac_scale") and Find("sac_scale") ~= "strolling" then return "unpaved"
+	end
+
+	return ""
+end
+
+
