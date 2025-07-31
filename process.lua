@@ -314,6 +314,15 @@ function relation_scan_function()
 	if Find("type")=="boundary" and Find("boundary")=="administrative" then
 		Accept()
 	end
+	if Find("type")=="route" and Find("route")=="bicycle" then
+		ScanCycleRoute()
+	end
+end
+
+function relation_function()
+	if Find("type")=="route" and Find("route")=="bicycle" then
+		CycleRouteLayer()
+	end
 end
 
 function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, service, is_rail, is_road, is_area)
@@ -467,6 +476,11 @@ function way_function()
 		local h = highway
 		if IsCycleway(h) then h = "cycleway"
 		elseif IsCycleFriendly(h) then h = "cyclefriendly" end
+
+		local cycle_route_type = GetCycleRouteType()
+		if cycle_route_type ~= "" then
+			Attribute("cycleroutetype", cycle_route_type)
+		end
 
 		local is_road = true
 		if h == "" then

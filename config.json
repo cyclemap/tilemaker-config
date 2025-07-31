@@ -14,6 +14,8 @@
 		"transportation": { "minzoom": 5, "maxzoom": 14, "simplify_below": 13, "simplify_level": 0.0002 },
 		"transportation_name": { "minzoom": 8, "maxzoom": 14 },
 
+		"cycleroute": { "minzoom": 5, "maxzoom": 14, "simplify_below": 13, "simplify_level": 0.0002 },
+
 		"building": { "minzoom": 13, "maxzoom": 14 },
 
 		"water": { "minzoom": 2, "maxzoom": 14, "simplify_below": 13, "simplify_level": 0.0003, "simplify_algorithm": "visvalingam" },

@@ -42,11 +42,7 @@ function IsCycleway(highway)
 		end
 		if bicycle == "permissive" or bicycle == "dismount" or bicycle == "customers" or bicycle == "designated" or
 			Holds("ramp:bicycle") and Find("ramp:bicycle") ~= "no" or
-			Find("icn") == "yes" or Holds("icn_ref") or
-			Find("ncn") == "yes" or Holds("ncn_ref") or
-			Find("rcn") == "yes" or Holds("rcn_ref") or
-			Find("lcn") == "yes" or Holds("lcn_ref") or
-			Find("route") == "bicycle" then
+			GetCycleRouteType() ~= "" then
 			return true
 		end
 	end
@@ -90,13 +86,7 @@ function IsCycleFriendly(highway)
 		Find("cycleway:right") == "shared_lane" or
 		Find("cycleway:both") == "shared_lane" then return true end
 
-	if Find("icn") == "yes" or Holds("icn_ref") or
-		Find("ncn") == "yes" or Holds("ncn_ref") or
-		Find("rcn") == "yes" or Holds("rcn_ref") or
-		Find("lcn") == "yes" or Holds("lcn_ref") or
-		Find("route") == "bicycle" then
-			return true
-	end
+	if GetCycleRouteType() ~= "" then return true end
 
 	if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" then
 		if highway == "residential" or highway == "service" or highway == "unclassified" or
@@ -142,4 +132,35 @@ function GetSurface()
 	return ""
 end
 
+-- scan a route that is type==route and route==bicycle
+function ScanCycleRoute()
+	-- see tilemaker/docs/RELATIONS.md . . . when Accept() is called, the relation data is added to FindInRelation for the ways
+	Accept()
+end
+
+-- see ScanCycleRoute() above for how these values are added to the ways
+function GetCycleRouteType()
+	-- also check the legacy tags?
+	-- using a variable here so we can reset the relations
+	local routeType = ""
+	while true do
+		local relationId = NextRelation()
+		if not relationId then break end
+		if FindInRelation("icn") == "yes" or FindInRelation("icn_ref") ~= "" then routeType="icn"; break end
+		if FindInRelation("ncn") == "yes" or FindInRelation("ncn_ref") ~= "" then routeType="ncn"; break end
+		if FindInRelation("rcn") == "yes" or FindInRelation("rcn_ref") ~= "" then routeType="rcn"; break end
+		if FindInRelation("lcn") == "yes" or FindInRelation("lcn_ref") ~= "" then routeType="lcn"; break end
+		if FindInRelation("route") == "bicycle" then routeType="bicycle"; break end
+	end
+	RestartRelations()
+	return routeType
+end
+
+function CycleRouteLayer()
+	Layer("cycleroute", false)
+	Attribute("type", GetCycleRouteType())
+	Attribute("class", Find("network"))
+	Attribute("ref", Find("ref"))
+	Attribute("name", Find("name"))
+end
 

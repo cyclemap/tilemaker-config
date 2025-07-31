@@ -30,8 +30,8 @@ function dockerRun() {
 	#sdc (root) / sdb (docker):  Samsung SSD 850 EVO 1TB:  430 megabytes / second write
 	#sda (bak):  Samsung SSD 840 EVO 1TB:  360 megabytes / second write
 	time docker run \
-		--memory='19g' \
-		--memory-swap='30g' \
+		--memory='21g' \
+		--memory-swap='32g' \
 		--cpus=4 \
 		--blkio-weight=100 \
 		--device-read-bps=/dev/sdb:300mb \
