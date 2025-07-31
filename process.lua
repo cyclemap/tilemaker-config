@@ -544,15 +544,15 @@ function way_function()
 			-- Write names
 			if not is_closed and (HasNames() or Holds("ref")) then
 				if h == "motorway" or IsCycleway(h) then
-					minzoom = 7
+					minzoom = 9
 				elseif h == "trunk" then
-					minzoom = 8
-				elseif h == "primary" then
 					minzoom = 10
+				elseif h == "primary" then
+					minzoom = 12
 				elseif h == "secondary" then
-					minzoom = 11
-				elseif h == "minor" or h == "track" or h == "tertiary" then
 					minzoom = 13
+				elseif h == "minor" or h == "track" or h == "tertiary" then
+					minzoom = 14
 				else
 					minzoom = 14
 				end
