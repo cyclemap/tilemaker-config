@@ -53,20 +53,47 @@ function IsCycleway(highway)
 	return false
 end
 
-function IsMaxSpeedLow()
-	-- todo
-	return false
+-- 60kph is 37.3mph
+function IsMaxSpeedLow(maxSpeed)
+	return maxSpeed ~= nil and maxSpeed <= 60
 end
 
+-- there's like, a lot of room, or we're not sure how wide it is
 function IsWideOrUnknown()
-	-- todo
-	return false
+	local lanes = tonumber(Find("lanes"))
+
+	-- we're not sure how wide it is, or there's 3+ lanes
+	if lanes == nil or lanes < 1 or lanes > 2 then return true end
+	local oneway = Find("oneway")
+	-- it's one way and there are 2+ lanes
+	if oneway == "yes" and lanes > 1 then return true end
+
+	-- 3.75m is 12.3 feet
+	local width = tonumber(Find("width"))
+	if width ~= nil and (lanes == 1 and width < 3.75 or lanes == 2 and width < 7.5) then return false end
+
+	local width = tonumber(Find("width:carriageway"))
+	if width ~= nil and (lanes == 1 and width < 3.75 or lanes == 2 and width < 7.5) then return false end
+
+	return true
 end
 
-function IsMaxSpeedVeryLow()
-	-- todo
-	return false
+-- 40kph is 24.8mph
+function IsMaxSpeedVeryLow(maxSpeed)
+	return maxSpeed ~= nil and maxSpeed <= 40
 end
+
+function GetMaxSpeed()
+	local maxSpeed = Find("maxspeed")
+	local maxSpeed, count = string.gsub(maxSpeed, " ?mph", "")
+	if count > 0 then
+		local maxSpeed = tonumber(maxSpeed)
+		if maxSpeed ~= nil then return maxSpeed * 1.609344 else return nil end
+	end
+	local maxSpeed, count = string.gsub(maxSpeed, " ?kph", "")
+	return tonumber(maxSpeed)
+end
+
 
 function IsCycleFriendly(highway)
 	if highway == "construction" then return false end
@@ -89,9 +116,10 @@ function IsCycleFriendly(highway)
 	if GetCycleRouteType() ~= "" then return true end
 
 	if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" then
+		local maxSpeed = GetMaxSpeed()
 		if highway == "residential" or highway == "service" or highway == "unclassified" or
-			IsMaxSpeedLow() and IsWideOrUnknown() or
-			IsMaxSpeedVeryLow() then
+			IsMaxSpeedLow(maxSpeed) and IsWideOrUnknown() or
+			IsMaxSpeedVeryLow(maxSpeed) then
 			return true
 		end
 	end
