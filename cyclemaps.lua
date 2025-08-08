@@ -36,8 +36,9 @@ function IsCycleway(highway)
 
 	local unpaved = GetSurface() == "unpaved"
 	if unpaved or highway == "pedestrian" or highway == "living_street" or highway == "path" or highway == "footway" or highway == "steps" or highway == "bridleway" or highway == "corridor" or highway == "track" then
-		-- special logic for sidewalks:  bicycle=yes is enough for CycleFriendly but not Cycleway
-		if bicycle == "yes" and (unpaved or highway ~= "footway" or Find("footway") ~= "sidewalk") then
+		-- special logic for sidewalks:  bicycle=yes is enough for CycleFriendly but not Cycleway unless it's unpaved or 3m wide
+		local width = tonumber(Find("width"))
+		if bicycle == "yes" and (unpaved or width ~= nil and width >= 3 or highway ~= "footway" or Find("footway") ~= "sidewalk") then
 			return true
 		end
 		if bicycle == "permissive" or bicycle == "dismount" or bicycle == "customers" or bicycle == "designated" or
