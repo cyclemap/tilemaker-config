@@ -314,13 +314,13 @@ function relation_scan_function()
 	if Find("type")=="boundary" and Find("boundary")=="administrative" then
 		Accept()
 	end
-	if Find("type")=="route" and Find("route")=="bicycle" then
+	if Find("type")=="route" and (Find("route")=="bicycle" or Find("route")=="mtb") then
 		ScanCycleRoute()
 	end
 end
 
 function relation_function()
-	if Find("type")=="route" and Find("route")=="bicycle" then
+	if Find("type")=="route" and (Find("route")=="bicycle" or Find("route")=="mtb") then
 		CycleRouteLayer()
 	end
 end

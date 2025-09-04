@@ -9,7 +9,7 @@ input=$name.osm.pbf
 output=$name-$date.pmtiles
 published=$name.pmtiles
 
-# wget https://planet.openstreetmap.org/pbf/planet-latest.osm.pbf && \mv {planet-latest,cyclemaps}.osm.pbf
+# wget https://planet.openstreetmap.org/pbf/planet-latest.osm.pbf && \mv {planet-latest,cyclemaps}.osm.pbf && updatecyclemaps
 
 exec &> >(tee >(\
 	sed \

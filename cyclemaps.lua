@@ -161,7 +161,7 @@ function GetSurface()
 	return ""
 end
 
--- scan a route that is type==route and route==bicycle
+-- scan a route that is type==route and (route==bicycle or route==mtb)
 function ScanCycleRoute()
 	-- see tilemaker/docs/RELATIONS.md . . . when Accept() is called, the relation data is added to FindInRelation for the ways
 	Accept()
