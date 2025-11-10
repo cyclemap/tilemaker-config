@@ -50,7 +50,7 @@ function dockerRun() {
 function updateInput() {
 	echo updating:  started at $(date --rfc-3339=seconds)
 	dockerRun \
-		openmaptiles/openmaptiles-tools:7.1 \
+		openmaptiles/openmaptiles-tools:7.2 \
 		osmupdate --verbose $input $input-new.osm.pbf
 	#mv --force $input $input-old.osm.pbf
 	mv --force $input-new.osm.pbf $input
@@ -89,7 +89,7 @@ function makeTiles() {
 
 
 echo '==='
-echo 'to update:  for tag in openmaptiles/openmaptiles-tools:7.1 ghcr.io/systemed/tilemaker:master protomaps/go-pmtiles; do docker pull $tag; done'
+echo 'to update:  for tag in openmaptiles/openmaptiles-tools:7.2 ghcr.io/systemed/tilemaker:master protomaps/go-pmtiles; do docker pull $tag; done'
 set -x #print out commands
 
 #tilemaker/get-landcover.sh
