@@ -302,9 +302,8 @@ poiSubClasses = { information="information", place_of_worship="religion", pitch=
 poiClassRanks   = { hospital=1, railway=2, bus=3, attraction=4, harbor=5, college=6,
 					school=7, stadium=8, zoo=9, town_hall=10, campsite=11, cemetery=12,
 					park=13, library=14, police=15, post=16, golf=17, shop=18, grocery=19,
-					fast_food=20, clothing_store=21, bar=22,
-					bicycle=2, bicycle_repair_station=4, compressed_air=5, toilet=5, drinking_water=5, bicycle_rental=5, bicycle_parking=6
-					}
+					fast_food=20, clothing_store=21, bar=22 }
+poiRanks        = { bicycle=2, bicycle_repair_station=4, compressed_air=5, toilet=5, drinking_water=5, bicycle_rental=5, bicycle_parking=6 }
 waterClasses    = Set { "river", "riverbank", "stream", "canal", "drain", "ditch", "dock" }
 waterwayClasses = Set { "stream", "river", "canal", "drain", "ditch" }
 
@@ -878,7 +877,7 @@ function GetPOIRank()
 		if list[Find(k)] then
 			v = Find(k)	-- k/v are the OSM tag pair
 			class = poiClasses[v] or k
-			rank  = poiClassRanks[class] or 25
+			rank  = poiRanks[v] or poiClassRanks[class] or 25
 			subclassKey = poiSubClasses[v]
 			if subclassKey then
 				class = v
