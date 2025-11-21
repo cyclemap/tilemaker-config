@@ -235,7 +235,7 @@ z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street
 z12OtherRoadValues = Set { "raceway" }
 z13RoadValues     = Set { "track", "service" }
 manMadeRoadValues = Set { "pier", "bridge" }
-pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform" }
+pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
 linkValues      = Set { "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link" }
 railwayClasses  = { rail="rail", narrow_gauge="rail", preserved="rail", funicular="rail", subway="transit", light_rail="transit", monorail="transit", tram="transit" }
 
@@ -471,7 +471,7 @@ function way_function()
 	-- Roads ('transportation' and 'transportation_name')
 	if highway ~= "" or public_transport == "platform" then
 		local access = Find("access")
-		local surface = Find("surface")
+		local surface = GetSurface()
 
 		local h = highway
 		if IsCycleway(h) then h = "cycleway"
@@ -497,17 +497,20 @@ function way_function()
 		if z4RoadValues[h]           then minzoom = 4
 		elseif z5RoadValues[h]       then minzoom = 5
 		elseif z7RoadValues[h]       then minzoom = 7
-		elseif z9RoadValues[h]       then minzoom = 9
+		elseif z9RoadValues[h] or surface == 'unpaved' then minzoom = 9
 		elseif z10RoadValues[h]      then minzoom = 10
 		elseif z11RoadValues[h]      then minzoom = 11
-		elseif z12MinorRoadValues[h] then
-			minzoom = 12
-			subclass = h
-			h = "minor"
+		elseif z12MinorRoadValues[h] then minzoom = 12
 		elseif z12OtherRoadValues[h] then minzoom = 12
 		elseif z13RoadValues[h]      then minzoom = 13
-		elseif pathValues[h]         then
-			minzoom = 14
+		elseif pathValues[h]         then minzoom = 14
+		end
+		
+		if z12MinorRoadValues[h] then
+			subclass = h
+			h = "minor"
+		end
+		if pathValues[h] then
 			subclass = h
 			h = "path"
 		end
