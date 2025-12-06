@@ -41,7 +41,7 @@ function IsCycleway(highway)
 		if bicycle == "yes" and (unpaved or width ~= nil and width >= 3 or highway ~= "footway" or Find("footway") ~= "sidewalk") then
 			return true
 		end
-		if bicycle == "permissive" or bicycle == "dismount" or bicycle == "customers" or bicycle == "designated" or
+		if bicycle == "permissive" or bicycle == "customers" or bicycle == "designated" or
 			Holds("ramp:bicycle") and Find("ramp:bicycle") ~= "no" or
 			GetCycleRouteType() ~= "" then
 			return true
@@ -116,7 +116,7 @@ function IsCycleFriendly(highway)
 
 	if GetCycleRouteType() ~= "" then return true end
 
-	if bicycle == "yes" or bicycle == "permissive" or bicycle == "dismount" then
+	if bicycle == "yes" or bicycle == "permissive" then
 		local maxSpeed = GetMaxSpeed()
 		if highway == "residential" or highway == "service" or highway == "unclassified" or
 			IsMaxSpeedLow(maxSpeed) and IsWideOrUnknown() or
