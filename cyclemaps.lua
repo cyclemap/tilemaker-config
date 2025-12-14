@@ -116,6 +116,10 @@ function IsCycleFriendly(highway)
 
 	if GetCycleRouteType() ~= "" then return true end
 
+	if bicylce == "dismount" then
+		return true
+	end
+
 	if bicycle == "yes" or bicycle == "permissive" then
 		local maxSpeed = GetMaxSpeed()
 		if highway == "residential" or highway == "service" or highway == "unclassified" or
