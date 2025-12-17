@@ -147,7 +147,7 @@ function GetSurface()
 	local highway = Find("highway")
 	local smoothness = Find("smoothness")
 	
-	if smoothness == "excellent" or smoothness == "good" or Holds("crossing") or Find("footway") == "access_aisle" then return "paved"
+	if smoothness == "excellent" or smoothness == "good" or Holds("crossing") or Find("footway") == "crossing" or Find("footway") == "access_aisle" then return "paved"
 	elseif Holds("mtb:scale") or Holds("mtb:scale:imba") or Holds("mtb:type") or Find("bicycle") == "mtb" or Find("route") == "mtb" then return "unpaved"
 	
 	elseif highway == "motorway" or highway == "trunk" or highway == "primary" or highway == "secondary" or highway == "tertiary" or highway == "unclassified" or highway == "residential" or highway == "living_street" or highway == "road" or highway == "service" or highway == "motorway_link" or highway == "trunk_link" or highway == "primary_link" or highway == "secondary_link" or highway == "tertiary_link" or highway == "raceway" or highway == "steps" or highway == "cycleway" then return "paved"
