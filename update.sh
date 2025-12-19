@@ -6,6 +6,7 @@ updateInput=${UPDATE_INPUT:-yes}
 date=$(date --rfc-3339=date)
 name=${NAME:-cyclemaps}
 input=$name.osm.pbf
+inputMinimumSize=83 #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
 output=$name-$date.pmtiles
 published=$name.pmtiles
 
@@ -47,11 +48,22 @@ function dockerRun() {
 		"$@"
 }
 
+function checkInput() {
+	filename=$1
+	size=$(stat --format=%s $filename)
+	minimum=$((${inputMinimumSize}*1024**3))
+	if [ $size -lt $minimum ]; then
+		echo "$filename:  file smaller than expected:  ($size < $minimum)"
+		exit 1
+	fi
+}
+
 function updateInput() {
 	echo updating:  started at $(date --rfc-3339=seconds)
 	dockerRun \
 		openmaptiles/openmaptiles-tools:7.2 \
 		osmupdate --verbose $input $input-new.osm.pbf
+	checkInput "$input-new.osm.pbf"
 	#mv --force $input $input-old.osm.pbf
 	mv --force $input-new.osm.pbf $input
 	echo updating:  done at $(date --rfc-3339=seconds)
@@ -98,6 +110,7 @@ set -x #print out commands
 
 if [ -x process.sh ]; then ./process.sh; fi
 if [ "$updateInput" == "yes" ]; then updateInput; fi
+checkInput "$input"
 makeTiles
 if [ -x publish.sh ]; then ./publish.sh $output $published; fi
 
