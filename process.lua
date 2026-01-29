@@ -3,8 +3,6 @@
 -- Copyright (c) 2016, KlokanTech.com & OpenMapTiles contributors.
 -- Used under CC-BY 4.0
 
-require "cyclemaps"
-
 --------
 -- Alter these lines to control which languages are written for place/streetnames
 --
@@ -223,19 +221,20 @@ function node_function()
 end
 
 -- Process way tags
+-- please note that cyclemaps overrides many of the defaults below!
 
-z4RoadValues = Set { }
-z5RoadValues = Set { "cycleway" }
-z7RoadValues = Set { "motorway", "trunk", "primary" }
+z4RoadValues = Set { "motorway" }
+z5RoadValues = Set { "trunk" }
+z7RoadValues = Set { "primary" }
 z9RoadValues = Set { "secondary", "motorway_link", "trunk_link" }
 z10RoadValues = Set { "primary_link", "secondary_link" }
-z11RoadValues = Set { "tertiary", "tertiary_link", "busway", "bus_guideway", "cyclefriendly" }
+z11RoadValues = Set { "tertiary", "tertiary_link", "busway", "bus_guideway" }
 -- On zoom 12, various road classes are merged into "minor"
 z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street" }
 z12OtherRoadValues = Set { "raceway" }
 z13RoadValues     = Set { "track", "service" }
 manMadeRoadValues = Set { "pier", "bridge" }
-pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
+pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform" }
 linkValues      = Set { "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link" }
 railwayClasses  = { rail="rail", narrow_gauge="rail", preserved="rail", funicular="rail", subway="transit", light_rail="transit", monorail="transit", tram="transit" }
 
@@ -253,7 +252,7 @@ landcoverKeys   = { wood="wood", forest="wood",
 
 -- POI key/value pairs: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/mapping.yaml
 poiTags         = { aerialway = Set { "station" },
-					amenity = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking", "bicycle_rental", "bicycle_repair_station", "biergarten", "bus_station", "cafe", "cinema", "clinic", "college", "community_centre", "compressed_air", "courthouse", "dentist", "doctors", "drinking_water", "embassy", "fast_food", "ferry_terminal", "fire_station", "food_court", "fuel", "grave_yard", "hospital", "ice_cream", "kindergarten", "library", "marketplace", "motorcycle_parking", "nightclub", "nursing_home", "parking", "pharmacy", "place_of_worship", "police", "post_box", "post_office", "prison", "pub", "public_building", "recycling", "restaurant", "school", "shelter", "swimming_pool", "taxi", "telephone", "theatre", "toilets", "townhall", "university", "veterinary", "waste_basket" },
+					amenity = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking", "bicycle_rental", "biergarten", "bus_station", "cafe", "cinema", "clinic", "college", "community_centre", "courthouse", "dentist", "doctors", "embassy", "fast_food", "ferry_terminal", "fire_station", "food_court", "fuel", "grave_yard", "hospital", "ice_cream", "kindergarten", "library", "marketplace", "motorcycle_parking", "nightclub", "nursing_home", "parking", "pharmacy", "place_of_worship", "police", "post_box", "post_office", "prison", "pub", "public_building", "recycling", "restaurant", "school", "shelter", "swimming_pool", "taxi", "telephone", "theatre", "toilets", "townhall", "university", "veterinary", "waste_basket" },
 					barrier = Set { "bollard", "border_control", "cycle_barrier", "gate", "lift_gate", "sally_port", "stile", "toll_booth" },
 					building = Set { "dormitory" },
 					highway = Set { "bus_stop" },
@@ -265,6 +264,9 @@ poiTags         = { aerialway = Set { "station" },
 					sport = Set { "american_football", "archery", "athletics", "australian_football", "badminton", "baseball", "basketball", "beachvolleyball", "billiards", "bmx", "boules", "bowls", "boxing", "canadian_football", "canoe", "chess", "climbing", "climbing_adventure", "cricket", "cricket_nets", "croquet", "curling", "cycling", "disc_golf", "diving", "dog_racing", "equestrian", "fatsal", "field_hockey", "free_flying", "gaelic_games", "golf", "gymnastics", "handball", "hockey", "horse_racing", "horseshoes", "ice_hockey", "ice_stock", "judo", "karting", "korfball", "long_jump", "model_aerodrome", "motocross", "motor", "multi", "netball", "orienteering", "paddle_tennis", "paintball", "paragliding", "pelota", "racquet", "rc_car", "rowing", "rugby", "rugby_league", "rugby_union", "running", "sailing", "scuba_diving", "shooting", "shooting_range", "skateboard", "skating", "skiing", "soccer", "surfing", "swimming", "table_soccer", "table_tennis", "team_handball", "tennis", "toboggan", "volleyball", "water_ski", "yoga" },
 					tourism = Set { "alpine_hut", "aquarium", "artwork", "attraction", "bed_and_breakfast", "camp_site", "caravan_site", "chalet", "gallery", "guest_house", "hostel", "hotel", "information", "motel", "museum", "picnic_site", "theme_park", "viewpoint", "zoo" },
 					waterway = Set { "dock" } }
+
+-- please note that cyclemaps overrides many of the defaults above!
+require "cyclemaps"
 
 -- POI "class" values: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/poi.yaml
 poiClasses      = { townhall="town_hall", public_building="town_hall", courthouse="town_hall", community_centre="town_hall",
@@ -303,7 +305,6 @@ poiClassRanks   = { hospital=1, railway=2, bus=3, attraction=4, harbor=5, colleg
 					school=7, stadium=8, zoo=9, town_hall=10, campsite=11, cemetery=12,
 					park=13, library=14, police=15, post=16, golf=17, shop=18, grocery=19,
 					fast_food=20, clothing_store=21, bar=22 }
-poiRanks        = { bicycle=2, bicycle_repair_station=4, compressed_air=5, toilet=5, drinking_water=5, bicycle_rental=5, bicycle_parking=6 }
 waterClasses    = Set { "river", "riverbank", "stream", "canal", "drain", "ditch", "dock" }
 waterwayClasses = Set { "stream", "river", "canal", "drain", "ditch" }
 
@@ -367,6 +368,18 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 	end
 end
 
+function GetSurface()
+	local surface = split(Find("surface"), ";")
+	-- prioritize unpaved
+	for _, surfaceEntry in ipairs(surface) do
+		if unpavedValues[surfaceEntry] then return "unpaved" end
+	end
+	for _, surfaceEntry in ipairs(surface) do
+		if pavedValues[surfaceEntry] then return "paved" end
+	end
+	return GetSurfaceHelper()
+end
+
 -- Process way tags
 
 function way_function()
@@ -395,7 +408,6 @@ function way_function()
 	local housenumber = Find("addr:housenumber")
 	local write_name = false
 	local construction = Find("construction")
-	local is_highway_area = highway~="" and Find("area")=="yes" and is_closed
 
 	-- Miscellaneous preprocessing
 	if Find("disused") == "yes" then return end
@@ -472,6 +484,7 @@ function way_function()
 	if highway ~= "" or public_transport == "platform" then
 		local access = Find("access")
 		local surface = GetSurface()
+		local is_area = (public_transport == "platform" or Find("area")=="yes") and is_closed
 
 		local h = highway
 		if IsCycleway(h) then h = "cycleway"
@@ -536,13 +549,13 @@ function way_function()
 		end
 
 		-- Drop all areas except infrastructure for pedestrians handled above
-		if is_highway_area and h ~= "path" then
+		if is_area and h ~= "path" then
 			minzoom = INVALID_ZOOM
 		end
 
 		-- Write to layer
 		if minzoom <= 14 then
-			write_to_transportation_layer(minzoom, h, subclass, ramp, service, false, is_road, is_highway_area)
+			write_to_transportation_layer(minzoom, h, subclass, ramp, service, false, is_road, is_area)
 
 			-- Write names
 			if not is_closed and (HasNames() or Holds("ref")) then

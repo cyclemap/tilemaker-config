@@ -1,4 +1,29 @@
 
+
+-- override many of the defaults in process.lua
+
+
+-- shift everything down and add cycleway to 4-7
+z4RoadValues = Set { }
+z5RoadValues = Set { "cycleway" }
+-- there is no z6RoadValues
+z7RoadValues = Set { "motorway", "trunk", "primary" }
+
+-- add cyclefriendly to zoom 11
+z11RoadValues = Set { "tertiary", "tertiary_link", "busway", "bus_guideway", "cyclefriendly" }
+
+-- add bicycle_repair_station compressed_air drinking_water
+poiTags["amenity"] = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking", "bicycle_rental", "bicycle_repair_station", "biergarten", "bus_station", "cafe", "cinema", "clinic", "college", "community_centre", "compressed_air", "courthouse", "dentist", "doctors", "drinking_water", "embassy", "fast_food", "ferry_terminal", "fire_station", "food_court", "fuel", "grave_yard", "hospital", "ice_cream", "kindergarten", "library", "marketplace", "motorcycle_parking", "nightclub", "nursing_home", "parking", "pharmacy", "place_of_worship", "police", "post_box", "post_office", "prison", "pub", "public_building", "recycling", "restaurant", "school", "shelter", "swimming_pool", "taxi", "telephone", "theatre", "toilets", "townhall", "university", "veterinary", "waste_basket" }
+
+-- REMOVE cycleway from pathValues
+pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
+
+-- create poiRanks variable
+poiRanks        = { bicycle=2, bicycle_repair_station=4, compressed_air=5, toilet=5, drinking_water=5, bicycle_rental=5, bicycle_parking=6 }
+
+
+
+
 function IsCycleway(highway)
 	if highway == "construction" then return false end
 
@@ -138,16 +163,9 @@ function IsCycleFriendly(highway)
 
 end
 
-function GetSurface()
-	local surface = split(Find("surface"), ";")
-	-- prioritize unpaved
-	for _, surfaceEntry in ipairs(surface) do
-		if unpavedValues[surfaceEntry] then return "unpaved" end
-	end
-	for _, surfaceEntry in ipairs(surface) do
-		if pavedValues[surfaceEntry] then return "paved" end
-	end
-	
+
+-- run GetSurface() instead:  this only gets run if nothing useful was found in the surface field
+function GetSurfaceHelper()
 	local highway = Find("highway")
 	local smoothness = Find("smoothness")
 	
