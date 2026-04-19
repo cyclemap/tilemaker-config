@@ -199,7 +199,7 @@ function node_function()
 		return
 	end
 
-	-- Write 'poi'
+	-- POIs ('poi' and 'poi_detail')
 	local rank, class, subclass = GetPOIRank()
 	if rank then WritePOI(class,subclass,rank) end
 
@@ -314,15 +314,11 @@ function relation_scan_function()
 	if Find("type")=="boundary" and Find("boundary")=="administrative" then
 		Accept()
 	end
-	if Find("type")=="route" and (Find("route")=="bicycle" or Find("route")=="mtb") then
-		ScanCycleRoute()
-	end
+	RelationScanFunctionCycleHelper()
 end
 
 function relation_function()
-	if Find("type")=="route" and (Find("route")=="bicycle" or Find("route")=="mtb") then
-		CycleRouteLayer()
-	end
+	RelationFunctionCycleHelper()
 end
 
 function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, service, is_rail, is_road, is_area)
@@ -377,7 +373,7 @@ function GetSurface()
 	for _, surfaceEntry in ipairs(surface) do
 		if pavedValues[surfaceEntry] then return "paved" end
 	end
-	return GetSurfaceHelper()
+	return GetSurfaceCycleHelper()
 end
 
 -- Process way tags
@@ -886,8 +882,11 @@ end
 -- Calculate POIs (typically rank 1-4 go to 'poi' z12-14, rank 5+ to 'poi_detail' z14)
 -- returns rank, class, subclass
 function GetPOIRank()
-	local k,list,v,class,rank
+	local rank, class, subclass = GetPOIRankCycleHelper()
+	if rank then return rank, class, subclass end
 
+	local k,list,v
+	
 	-- Can we find the tag?
 	for k,list in pairs(poiTags) do
 		if list[Find(k)] then

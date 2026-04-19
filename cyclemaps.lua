@@ -165,7 +165,7 @@ end
 
 
 -- run GetSurface() instead:  this only gets run if nothing useful was found in the surface field
-function GetSurfaceHelper()
+function GetSurfaceCycleHelper()
 	local highway = Find("highway")
 	local smoothness = Find("smoothness")
 	
@@ -183,13 +183,46 @@ function GetSurfaceHelper()
 	return ""
 end
 
--- scan a route that is type==route and (route==bicycle or route==mtb)
-function ScanCycleRoute()
-	-- see tilemaker/docs/RELATIONS.md . . . when Accept() is called, the relation data is added to FindInRelation for the ways
-	Accept()
+-- used by GetPOIRank() to get override certain cycle related things.
+-- returns nil,nil,nil under most situations
+-- typically rank 1-4 go to 'poi' z12-14, rank 5+ to 'poi_detail' z14
+-- returns rank, class, subclass
+function GetPOIRankCycleHelper()
+	if Find("service:bicycle:repair") == "yes" or Find("service:bicycle:retail") == "yes" then
+		-- treat this like:  shop=bicycle.  note that poiRanks["bicycle"] is defined in this file
+		local k='shop'
+		local v='bicycle'
+		local class = poiClasses[v] or k
+		local rank  = poiRanks[v] or poiClassRanks[class] or 25
+		local subclassKey = poiSubClasses[v]
+		if subclassKey then
+			class = v
+			v = Find(subclassKey)
+		end
+		return rank, class, v
+	end
+
+	-- Nothing found
+	return nil,nil,nil
 end
 
--- see ScanCycleRoute() above for how these values are added to the ways
+
+-- run relation_scan_function() instead.  this gets called by relation_scan_function
+function RelationScanFunctionCycleHelper()
+	if Find("type")=="route" and (Find("route")=="bicycle" or Find("route")=="mtb") then
+		-- see tilemaker/docs/RELATIONS.md . . . when Accept() is called, the relation data is added to FindInRelation for the ways
+		Accept()
+	end
+end
+
+-- run relation_function() instead.  this gets called by relation_function
+function RelationFunctionCycleHelper()
+	if Find("type")=="route" and (Find("route")=="bicycle" or Find("route")=="mtb") then
+		CycleRouteLayer()
+	end
+end
+
+-- see RelationScanFunctionCycleHelper() above for how these values are added to the ways
 function GetCycleRouteType()
 	-- also check the legacy tags?
 	-- using a variable here so we can reset the relations
