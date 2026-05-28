@@ -32,7 +32,7 @@ function dockerRun() {
 	#sda (bak):  Samsung SSD 840 EVO 1TB:  360 megabytes / second write
 	time docker run \
 		--memory='21g' \
-		--memory-swap='32g' \
+		--memory-swap='34g' \
 		--cpus=4 \
 		--blkio-weight=100 \
 		--device-read-bps=/dev/sdb:300mb \
@@ -75,7 +75,7 @@ function makeTiles() {
 		jq --raw-output '.[0].Config.Labels |
 			(."org.opencontainers.image.created"[:10] + " " + ."org.opencontainers.image.revision"[:7])')
 	#note on memory:  --store needs to exist unless you have somewhere around 256gb of ram
-	#even with --store, you need somewhere around 32-40gb of memory with swap
+	#even with --store, you need approximately the memory defined by dockerRun
 	dockerRun \
 		--volume /mnt/docker/tilemaker:/tmp/tilemaker \
 		ghcr.io/systemed/tilemaker:master \
