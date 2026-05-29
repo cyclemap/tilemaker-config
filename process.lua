@@ -477,7 +477,7 @@ function way_function()
 	end
 
 	-- Roads ('transportation' and 'transportation_name')
-	if highway ~= "" or public_transport == "platform" then
+	if highway ~= "" or public_transport == "platform" or leisure == "track" then
 		local access = Find("access")
 		local surface = GetSurface()
 		local is_area = (public_transport == "platform" or Find("area")=="yes") and is_closed

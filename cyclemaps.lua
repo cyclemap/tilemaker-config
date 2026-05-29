@@ -73,6 +73,7 @@ function IsCycleway(highway)
 		end
 	end
 
+	-- important:  for this to work, leisure=track needs to fall through to this method
 	-- todo sport can have multiple values.  match against (;|^)cycling(;|$)
 	if Find("sport") == "cycling" then return true end
 
