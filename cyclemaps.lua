@@ -189,7 +189,7 @@ end
 -- typically rank 1-4 go to 'poi' z12-14, rank 5+ to 'poi_detail' z14
 -- returns rank, class, subclass
 function GetPOIRankCycleHelper()
-	if Find("service:bicycle:repair") == "yes" or Find("service:bicycle:retail") == "yes" then
+	if Holds("service:bicycle:repair") and Find("service:bicycle:repair") ~= "no" or Find("service:bicycle:retail") == "yes" then
 		-- treat this like:  shop=bicycle.  note that poiRanks["bicycle"] is defined in this file
 		local k='shop'
 		local v='bicycle'
