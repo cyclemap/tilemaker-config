@@ -3,7 +3,7 @@
 -- override many of the defaults in process.lua
 
 
--- shift everything down and add cycleway to 4-7
+-- shift everything down and add cycleway to 5-7
 z4RoadValues = Set { }
 z5RoadValues = Set { "cycleway" }
 -- there is no z6RoadValues
@@ -17,12 +17,23 @@ poiTags["amenity"]["bicycle_repair_station"] = true
 poiTags["amenity"]["compressed_air"] = true
 poiTags["amenity"]["drinking_water"] = true
 
+-- see mtb:feature documentation:  https://osm.wiki/Proposal:MTB_Trail_Features
+
+features = { "jump", "gap_jump", "tabletop", "stepup", "stepdown", "drop", "berm", "skinny", "bridge", "aframe", "rock_garden", "teeter", "wall_ride", "shark_fin" }
+for _, feature in ipairs(features) do
+	local featureTag = "mtb:feature:"..feature
+	poiTags[featureTag] = Set { "yes", "left", "right", "middle" }
+	poiTagsAsClass[featureTag] = featureTag
+	poiClassRanks[featureTag] = 1
+	node_keys[#node_keys+1]=featureTag
+end
+
 -- REMOVE cycleway from pathValues
-pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
+pathValues["cycleway"] = nil
 
 -- create poiRanks variable
 -- process.lua is who decides what goes into poi, poi_2, poi_5, config.json decides what zoom levels they are visible at
-poiRanks        = { bicycle=1, bicycle_repair_station=1, compressed_air=1, toilets=1, drinking_water=1, bicycle_rental=1, bicycle_parking=1, left=1, right=1, middle=1 }
+poiRanks = { bicycle=1, bicycle_repair_station=1, compressed_air=1, toilets=1, drinking_water=1, bicycle_rental=1, bicycle_parking=1 }
 
 
 
@@ -207,6 +218,28 @@ function GetPOIRankCycleHelper()
 
 	-- Nothing found
 	return nil,nil,nil
+end
+
+function WritePOICycleHelper(class, subclass, rank)
+	local function StartsWith(str, start)
+		return str:sub(1, #start) == start
+	end
+
+	local prefix = "mtb:feature"
+	if not StartsWith(class, prefix..":") then
+		return
+	end
+
+	local full = class
+	subclass = class:sub(#prefix+2)
+	class = prefix
+
+	Attribute("class", class)
+	Attribute("subclass", subclass)
+	Attribute("location", Find(full))
+
+	if Holds(full..":height") then Attribute("height", Find(full..":height")) end
+	if Holds(full..":bypass") then Attribute("bypass", Find(full..":bypass")) end
 end
 
 

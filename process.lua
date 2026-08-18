@@ -29,6 +29,8 @@ function Set(list)
 	return set
 end
 
+-- please note that cyclemaps overrides many of the defaults below!
+
 -- Meters per pixel if tile is 256x256
 ZRES0 = 156542.97
 ZRES1  = 78271.48
@@ -221,7 +223,6 @@ function node_function()
 end
 
 -- Process way tags
--- please note that cyclemaps overrides many of the defaults below!
 
 z4RoadValues = Set { "motorway" }
 z5RoadValues = Set { "trunk" }
@@ -273,9 +274,6 @@ poiTags         = { aerialway = Set { "station" },
 					tourism = Set { "alpine_hut", "aquarium", "artwork", "attraction", "bed_and_breakfast", "camp_site", "caravan_site", "chalet", "gallery", "guest_house", "hostel", "hotel", "information", "motel", "museum", "picnic_site", "theme_park", "viewpoint", "zoo" },
 					waterway = Set { "dock" } }
 
--- please note that cyclemaps overrides many of the defaults above!
-require "cyclemaps"
-
 -- POI "class" values: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/poi.yaml
 poiClasses      = { townhall="town_hall", public_building="town_hall", courthouse="town_hall", community_centre="town_hall",
 					golf="golf", golf_course="golf", miniature_golf="golf",
@@ -322,6 +320,9 @@ poiClassRanks   = { hospital=1, railway=2, bus=3, attraction=4, harbor=5, colleg
 					fast_food=20, clothing_store=21, office=22, bar=23 }
 waterClasses    = Set { "river", "stream", "canal", "ditch", "drain", "pond", "basin", "wastewater" }
 waterwayClasses = Set { "stream", "river", "canal", "drain", "ditch" }
+
+-- please note that cyclemaps overrides many of the defaults above!
+require "cyclemaps"
 
 -- Scan relations for use in ways
 
@@ -821,6 +822,7 @@ function WritePOI(class,subclass,rank)
 	if rank==1 then layer="poi"
 	elseif rank<=4 then layer="poi_2"
 	else layer="poi_5" end
+
 	LayerAsCentroid(layer)
 	SetNameAttributes()
 	AttributeInteger("rank", rank)
@@ -836,6 +838,7 @@ function WritePOI(class,subclass,rank)
 	if level then
 		AttributeInteger("level", math.floor(level))
 	end
+	WritePOICycleHelper(class, subclass, rank)
 end
 
 -- Check if there are name tags on the object
