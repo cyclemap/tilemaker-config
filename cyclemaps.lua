@@ -19,7 +19,8 @@ poiTags["amenity"] = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking
 pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
 
 -- create poiRanks variable
-poiRanks        = { bicycle=2, bicycle_repair_station=4, compressed_air=5, toilet=5, drinking_water=5, bicycle_rental=5, bicycle_parking=6 }
+-- process.lua is who decides what goes into poi_detail, config.json decides what zoom levels poi_detail is visible at
+poiRanks        = { bicycle=1, bicycle_repair_station=1, compressed_air=1, toilets=1, drinking_water=1, bicycle_rental=1, bicycle_parking=1, left=1, right=1, middle=1 }
 
 
 

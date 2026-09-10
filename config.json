@@ -3,8 +3,9 @@
 		"place": { "minzoom": 0, "maxzoom": 14 },
 		"boundary": { "minzoom": 0, "maxzoom": 14, "simplify_below": 13, "simplify_level": 0.0003, "simplify_algorithm": "visvalingam" },
 
-		"poi": { "minzoom": 12, "maxzoom": 14 },
-		"poi_detail": { "minzoom": 14, "maxzoom": 14, "write_to": "poi" },
+		"poi_1": { "minzoom": 10, "maxzoom": 12, "write_to": "poi" },
+		"poi_2": { "minzoom": 12, "maxzoom": 14, "write_to": "poi" },
+		"poi_5": { "minzoom": 14, "maxzoom": 14, "write_to": "poi" },
 
 		"housenumber": { "minzoom": 14, "maxzoom": 14 },
 

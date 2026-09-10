@@ -199,7 +199,7 @@ function node_function()
 		return
 	end
 
-	-- POIs ('poi' and 'poi_detail')
+	-- POIs ('poi_1', 'poi_2', and 'poi_5')
 	local rank, class, subclass = GetPOIRank()
 	if rank then WritePOI(class,subclass,rank) end
 
@@ -750,13 +750,13 @@ function way_function()
 	if     boundary=="national_park" then Layer("park",true); Attribute("class",boundary); SetNameAttributes()
 	elseif leisure=="nature_reserve" then Layer("park",true); Attribute("class",leisure ); SetNameAttributes() end
 
-	-- POIs ('poi' and 'poi_detail')
+	-- POIs ('poi_1', 'poi_2', and 'poi_5')
 	local rank, class, subclass = GetPOIRank()
 	if rank then WritePOI(class,subclass,rank); return end
 
 	-- Catch-all
 	if (building~="" or write_name) and Holds("name") then
-		LayerAsCentroid("poi_detail")
+		LayerAsCentroid("poi_5")
 		SetNameAttributes()
 		if write_name then rank=6 else rank=25 end
 		AttributeInteger("rank", rank)
@@ -783,8 +783,10 @@ end
 
 -- Write a way centroid to POI layer
 function WritePOI(class,subclass,rank)
-	local layer = "poi"
-	if rank>4 then layer="poi_detail" end
+	local layer = ""
+	if rank==1 then layer="poi_1"
+	elseif rank<=4 then layer="poi_2"
+	else layer="poi_5" end
 	LayerAsCentroid(layer)
 	SetNameAttributes()
 	AttributeInteger("rank", rank)
@@ -879,7 +881,7 @@ function SetMinZoomByAreaWithLimit(minzoom)
 	else                      MinZoom(14) end
 end
 
--- Calculate POIs (typically rank 1-4 go to 'poi' z12-14, rank 5+ to 'poi_detail' z14)
+-- Calculate POIs (typically rank 1 goes to 'poi_1', rank 2-4 to 'poi_2', rank 5+ to 'poi_5')
 -- returns rank, class, subclass
 function GetPOIRank()
 	local rank, class, subclass = GetPOIRankCycleHelper()

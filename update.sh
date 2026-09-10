@@ -93,8 +93,10 @@ function makeTiles() {
 		protomaps/go-pmtiles \
 		cluster --no-deduplication $output
 	
-	wc --bytes $output
-	ls --size --human-readable $output
+	(
+		wc --bytes $output
+		ls --size --human-readable $output
+	) |tee --append logs/file-sizes.txt
 
 	echo make tiles:  done at $(date --rfc-3339=seconds)
 }
