@@ -10,10 +10,12 @@ z5RoadValues = Set { "cycleway" }
 z7RoadValues = Set { "motorway", "trunk", "primary" }
 
 -- add cyclefriendly to zoom 11
-z11RoadValues = Set { "tertiary", "tertiary_link", "busway", "bus_guideway", "cyclefriendly" }
+z11RoadValues["cyclefriendly"] = true
 
--- add bicycle_repair_station compressed_air drinking_water
-poiTags["amenity"] = Set { "arts_centre", "bank", "bar", "bbq", "bicycle_parking", "bicycle_rental", "bicycle_repair_station", "biergarten", "bus_station", "cafe", "cinema", "clinic", "college", "community_centre", "compressed_air", "courthouse", "dentist", "doctors", "drinking_water", "embassy", "fast_food", "ferry_terminal", "fire_station", "food_court", "fuel", "grave_yard", "hospital", "ice_cream", "kindergarten", "library", "marketplace", "motorcycle_parking", "nightclub", "nursing_home", "parking", "pharmacy", "place_of_worship", "police", "post_box", "post_office", "prison", "pub", "public_building", "recycling", "restaurant", "school", "shelter", "swimming_pool", "taxi", "telephone", "theatre", "toilets", "townhall", "university", "veterinary", "waste_basket" }
+-- add to the amenity set
+poiTags["amenity"]["bicycle_repair_station"] = true
+poiTags["amenity"]["compressed_air"] = true
+poiTags["amenity"]["drinking_water"] = true
 
 -- REMOVE cycleway from pathValues
 pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
@@ -194,7 +196,7 @@ function GetPOIRankCycleHelper()
 		-- treat this like:  shop=bicycle.  note that poiRanks["bicycle"] is defined in this file
 		local k='shop'
 		local v='bicycle'
-		local class = poiClasses[v] or k
+		local class = poiClasses[v] or poiTagsAsClass[k] or v
 		local rank  = poiRanks[v] or poiClassRanks[class] or 25
 		local subclassKey = poiSubClasses[v]
 		if subclassKey then
