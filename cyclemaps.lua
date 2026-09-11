@@ -21,7 +21,7 @@ poiTags["amenity"]["drinking_water"] = true
 pathValues      = Set { "footway", "bridleway", "path", "steps", "pedestrian", "platform" }
 
 -- create poiRanks variable
--- process.lua is who decides what goes into poi_detail, config.json decides what zoom levels poi_detail is visible at
+-- process.lua is who decides what goes into poi, poi_2, poi_5, config.json decides what zoom levels they are visible at
 poiRanks        = { bicycle=1, bicycle_repair_station=1, compressed_air=1, toilets=1, drinking_water=1, bicycle_rental=1, bicycle_parking=1, left=1, right=1, middle=1 }
 
 
@@ -189,7 +189,6 @@ end
 
 -- used by GetPOIRank() to get override certain cycle related things.
 -- returns nil,nil,nil under most situations
--- typically rank 1-4 go to 'poi' z12-14, rank 5+ to 'poi_detail' z14
 -- returns rank, class, subclass
 function GetPOIRankCycleHelper()
 	if Holds("service:bicycle:repair") and Find("service:bicycle:repair") ~= "no" or Find("service:bicycle:retail") == "yes" then

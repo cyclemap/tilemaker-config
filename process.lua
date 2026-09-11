@@ -199,7 +199,7 @@ function node_function()
 		return
 	end
 
-	-- POIs ('poi_1', 'poi_2', and 'poi_5')
+	-- POIs ('poi', 'poi_2', and 'poi_5')
 	local rank, class, subclass = GetPOIRank()
 	if rank then WritePOI(class,subclass,rank) end
 
@@ -784,7 +784,7 @@ function way_function()
 		SetNameAttributes()
 	end
 
-	-- POIs ('poi_1', 'poi_2', and 'poi_5')
+	-- POIs ('poi', 'poi_2', and 'poi_5')
 	local rank, class, subclass = GetPOIRank()
 	if rank then WritePOI(class,subclass,rank); return end
 
@@ -818,7 +818,7 @@ end
 -- Write a way centroid to POI layer
 function WritePOI(class,subclass,rank)
 	local layer = ""
-	if rank==1 then layer="poi_1"
+	if rank==1 then layer="poi"
 	elseif rank<=4 then layer="poi_2"
 	else layer="poi_5" end
 	LayerAsCentroid(layer)
@@ -915,7 +915,7 @@ function SetMinZoomByAreaWithLimit(minzoom)
 	else                      MinZoom(14) end
 end
 
--- Calculate POIs (typically rank 1 goes to 'poi_1', rank 2-4 to 'poi_2', rank 5+ to 'poi_5')
+-- Calculate POIs (typically rank 1 goes to 'poi', rank 2-4 to 'poi_2', rank 5+ to 'poi_5')
 -- returns rank, class, subclass
 function GetPOIRank()
 	local rank, class, subclass = GetPOIRankCycleHelper()
