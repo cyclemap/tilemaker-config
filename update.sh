@@ -6,7 +6,7 @@ updateInput=${UPDATE_INPUT:-yes}
 date=$(date --rfc-3339=date)
 name=${NAME:-cyclemaps}
 input=$name.osm.pbf
-inputMinimumSize=83 #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
+inputMinimumSize=90 #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
 output=$name-$date.pmtiles
 published=$name.pmtiles
 
@@ -65,7 +65,15 @@ function updateInput() {
 		openmaptiles/openmaptiles-tools:7.2 \
 		osmupdate --verbose $input $input-new.osm.pbf
 	checkInput "$input-new.osm.pbf"
-	#mv --force $input $input-old.osm.pbf
+	mv --force $input-new.osm.pbf $input
+	
+	# changes the BLOCK SIZE of the pbf file.  osmconvert, used by osmupdate won't let you set this value ( pb__blockM ) without recompiling
+	# tilemaker notices this in tilemaker/src/pbf_processor.cpp:  filesize / blocks.size() > 1000000
+	# takes about an hour and saves some amount of time
+	dockerRun \
+		openmaptiles/openmaptiles-tools:7.2 \
+		osmium cat -f pbf $input -o $input-new.osm.pbf
+	checkInput "$input-new.osm.pbf"
 	mv --force $input-new.osm.pbf $input
 	echo updating:  done at $(date --rfc-3339=seconds)
 }
