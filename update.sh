@@ -2,11 +2,17 @@
 
 set -e #exit on failure
 
+source config.sh
+
+disks=${DISKS:-()}
+diskSpeed=${DISK_SPEED:-3000mb}
+
+
 updateInput=${UPDATE_INPUT:-yes}
 date=$(date --rfc-3339=date)
 name=${NAME:-cyclemaps}
 input=$name.osm.pbf
-inputMinimumSize=90 #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
+inputMinimumSize=0 #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
 output=$name-$date.pmtiles
 published=$name.pmtiles
 
@@ -25,21 +31,12 @@ exec &> >(tee >(\
 ))
 
 function dockerRun() {
-	#TODO:  blkio-weight works without device-read-bps and without device-write-bps???
-	#TODO:  bps is bytes:  400 megabytes / second is my laughably old drive throughput
-	# Samsung SSD 850 EVO 1TB:  430 megabytes / second write
-	dockerDisk=/dev/disk/by-id/ata-Samsung_SSD_850_EVO_1TB_S2RENX0J207472T
-	# Samsung SSD 850 EVO 1TB:  430 megabytes / second write
-	rootDisk=/dev/disk/by-id/ata-Samsung_SSD_850_EVO_1TB_S2RENX0J207379Z
 	time docker run \
-		--memory='21g' \
-		--memory-swap='34g' \
-		--cpus=4 \
+		--memory=${MEMORY:-21g} \
+		--memory-swap=${MEMORY_SWAP:-34g} \
+		--cpus=${CPUS:-4} \
 		--blkio-weight=100 \
-		--device-read-bps=$dockerDisk:300mb \
-		--device-write-bps=$dockerDisk:300mb \
-		--device-read-bps=$rootDisk:300mb \
-		--device-write-bps=$rootDisk:300mb \
+		$(for disk in ${disks[@]}; do echo --device-read-bps=$disk:$diskSpeed --device-write-bps=$disk:$diskSpeed; done) \
 		--rm \
 		--interactive \
 		--tty \
@@ -86,13 +83,14 @@ function makeTiles() {
 	#note on memory:  --store needs to exist unless you have somewhere around 256gb of ram
 	#even with --store, you need approximately the memory defined by dockerRun
 	dockerRun \
-		--volume /mnt/docker/tilemaker:/tmp/tilemaker \
+		--volume $STORE_DIRECTORY:/tmp/tilemaker \
 		ghcr.io/systemed/tilemaker:master \
 		$input \
 		--store /tmp/tilemaker/store-$name \
 		--output $output \
 		--config config.json \
-		--process process.lua
+		--process process.lua \
+		${TILEMAKER_PARAMETERS:-}
 	
 	wc --bytes $output
 	ls --size --human-readable $output
