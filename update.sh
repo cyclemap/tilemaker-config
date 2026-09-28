@@ -4,7 +4,7 @@ set -e #exit on failure
 
 source config.sh
 
-disks=${DISKS:-()}
+disks=${DISKS}
 diskSpeed=${DISK_SPEED:-3000mb}
 
 
