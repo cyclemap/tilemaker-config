@@ -28,7 +28,7 @@ for((z=4;z<=14;z++)); do
 		yAngle = PI/4 + latitude/2
 		y=(PI - log(sin(yAngle)/cos(yAngle))) / (2*PI)
 		
-		print z, int(x * 2**z), int(y * 2**z)
+		print z, int(x * 2^z), int(y * 2^z)
 	}' <<< "$z $latitude $longitude")
 
 	xOriginal=${columns[1]}
