@@ -493,7 +493,7 @@ function way_function()
 	end
 
 	-- Roads ('transportation' and 'transportation_name')
-	if highway ~= "" or public_transport == "platform" or leisure == "track" then
+	if highway ~= "" or leisure == "track" or public_transport == "platform" then
 		local access = Find("access")
 		local surface = GetSurface()
 		local is_area = (public_transport == "platform" or Find("area")=="yes") and is_closed
@@ -507,11 +507,17 @@ function way_function()
 			Attribute("cycleroutetype", cycle_route_type)
 		end
 
-		local is_road = true
-		if h == "" then
+		local is_road
+		if h ~= "" then
+			is_road = true
+		elseif leisure ~= "" then
+			h = leisure
+			is_road = true
+		else
 			h = public_transport
 			is_road = false
 		end
+
 		local subclass = nil
 		local under_construction = false
 		if highway == "construction" and construction ~= "" then
