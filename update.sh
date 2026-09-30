@@ -3,6 +3,7 @@
 set -e #exit on failure
 
 source config.sh
+source docker-run.sh
 
 disks=${DISKS}
 diskSpeed=${DISK_SPEED:-3000mb}
@@ -29,22 +30,6 @@ exec &> >(tee >(\
 		'^(Store size|(osm|shp): finalizing z6 tile|z.*, writing tile |^  *[0-9]*% \|\| |^ *$)' \
 	>>"logs/update-$name.log"
 ))
-
-function dockerRun() {
-	time docker run \
-		--memory=${MEMORY:-21g} \
-		--memory-swap=${MEMORY_SWAP:-34g} \
-		--cpus=${CPUS:-4} \
-		--blkio-weight=100 \
-		$(for disk in ${disks[@]}; do echo --device-read-bps=$disk:$diskSpeed --device-write-bps=$disk:$diskSpeed; done) \
-		--rm \
-		--interactive \
-		--tty \
-		--user=$(id -u):$(id -g) \
-		--volume $PWD:/data \
-		--workdir /data \
-		"$@"
-}
 
 function checkInput() {
 	filename=$1
