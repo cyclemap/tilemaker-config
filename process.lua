@@ -235,7 +235,7 @@ z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street
 z12OtherRoadValues = Set { "raceway" }
 z13RoadValues     = Set { "track", "service" }
 manMadeRoadValues = Set { "pier", "bridge" }
-pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform" }
+pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform", "piste" }
 linkValues      = Set { "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link" }
 railwayClasses  = { rail="rail", narrow_gauge="rail", preserved="rail", funicular="rail", subway="transit", light_rail="transit", monorail="transit", tram="transit" }
 
@@ -420,6 +420,7 @@ function way_function()
 	local housenumber = Find("addr:housenumber")
 	local write_name = false
 	local construction = Find("construction")
+	local piste_type = Find("piste:type")
 
 	-- Miscellaneous preprocessing
 	if Find("disused") == "yes" then return end
@@ -493,7 +494,7 @@ function way_function()
 	end
 
 	-- Roads ('transportation' and 'transportation_name')
-	if highway ~= "" or leisure == "track" or public_transport == "platform" then
+	if highway ~= "" or leisure == "track" or piste_type ~= "" or public_transport == "platform" then
 		local access = Find("access")
 		local surface = GetSurface()
 		local is_area = (public_transport == "platform" or Find("area")=="yes") and is_closed
@@ -512,6 +513,9 @@ function way_function()
 			is_road = true
 		elseif leisure ~= "" then
 			h = leisure
+			is_road = true
+		elseif piste_type ~= "" then
+			h = 'piste'
 			is_road = true
 		else
 			h = public_transport

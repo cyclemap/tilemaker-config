@@ -10,5 +10,6 @@
 /process.sh
 /publish.sh
 /git/
+/tmp/
 
 /config.sh
