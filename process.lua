@@ -235,7 +235,7 @@ z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street
 z12OtherRoadValues = Set { "raceway" }
 z13RoadValues     = Set { "track", "service" }
 manMadeRoadValues = Set { "pier", "bridge" }
-pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform", "piste" }
+pathValues      = Set { "footway", "cycleway", "bridleway", "path", "steps", "pedestrian", "platform" }
 linkValues      = Set { "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link" }
 railwayClasses  = { rail="rail", narrow_gauge="rail", preserved="rail", funicular="rail", subway="transit", light_rail="transit", monorail="transit", tram="transit" }
 

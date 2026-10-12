@@ -12,6 +12,10 @@ z7RoadValues = Set { "motorway", "trunk", "primary" }
 -- add cyclefriendly to zoom 11
 z11RoadValues["cyclefriendly"] = true
 
+-- REMOVE cycleway from and add piste to pathValues
+pathValues["cycleway"] = nil
+pathValues["piste"] = true
+
 -- add to the amenity set
 poiTags["amenity"]["bicycle_repair_station"] = true
 poiTags["amenity"]["compressed_air"] = true
@@ -27,9 +31,6 @@ for _, feature in ipairs(features) do
 	poiClassRanks[featureTag] = 1
 	node_keys[#node_keys+1]=featureTag
 end
-
--- REMOVE cycleway from pathValues
-pathValues["cycleway"] = nil
 
 -- create poiRanks variable
 -- process.lua is who decides what goes into poi, poi_2, poi_5, config.json decides what zoom levels they are visible at
