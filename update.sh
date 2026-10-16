@@ -13,7 +13,7 @@ updateInput=${UPDATE_INPUT:-yes}
 date=$(date --rfc-3339=date)
 name=${NAME:-cyclemaps}
 input=$name.osm.pbf
-inputMinimumSize=0 #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
+inputMinimumSize=${INPUT_MINIMUM_SIZE:-85} #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
 output=$name-$date.pmtiles
 published=$name.pmtiles
 
