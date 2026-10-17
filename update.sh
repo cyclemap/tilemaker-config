@@ -2,12 +2,10 @@
 
 set -e #exit on failure
 
-source config.sh
+if [ -e config.sh ]; then
+	source config.sh
+fi
 source docker-run.sh
-
-disks=${DISKS}
-diskSpeed=${DISK_SPEED:-3000mb}
-
 
 updateInput=${UPDATE_INPUT:-yes}
 date=$(date --rfc-3339=date)
@@ -16,6 +14,9 @@ input=$name.osm.pbf
 inputMinimumSize=${INPUT_MINIMUM_SIZE:-85} #this file is sometimes too small ( this is the error that gets ignored: osmconvert Error: write error. ), we should error out when it's too small
 output=$name-$date.pmtiles
 published=$name.pmtiles
+image=${IMAGE:-ghcr.io/systemed/tilemaker:master}
+storeDirectory=${STORE_DIRECTORY:-$PWD/tmp}
+tilemakerParameters=${TILEMAKER_PARAMETERS:-}
 
 # wget https://planet.openstreetmap.org/pbf/planet-latest.osm.pbf && \mv {planet-latest,cyclemaps}.osm.pbf && updatecyclemaps
 
@@ -34,7 +35,7 @@ exec &> >(tee >(\
 function checkInput() {
 	filename=$1
 	size=$(stat --format=%s $filename)
-	minimum=$((${inputMinimumSize}*1024**3))
+	minimum=$(($inputMinimumSize*1024**3))
 	if [ $size -lt $minimum ]; then
 		echo "$filename:  file smaller than expected:  ($size < $minimum)"
 		exit 1
@@ -62,20 +63,20 @@ function updateInput() {
 
 function makeTiles() {
 	echo make tiles:  started at $(date --rfc-3339=seconds)
-	echo tilemaker version $(docker inspect ghcr.io/systemed/tilemaker:master |
+	echo tilemaker version $(docker inspect $image |
 		jq --raw-output '.[0].Config.Labels |
 			(."org.opencontainers.image.created"[:10] + " " + ."org.opencontainers.image.revision"[:7])')
 	#note on memory:  --store needs to exist unless you have somewhere around 256gb of ram
 	#even with --store, you need approximately the memory defined by dockerRun
 	dockerRun \
-		--volume $STORE_DIRECTORY:/tmp/tilemaker \
-		ghcr.io/systemed/tilemaker:master \
+		--volume $storeDirectory:/tmp/tilemaker \
+		$image \
 		$input \
 		--store /tmp/tilemaker/store-$name \
 		--output $output \
 		--config config.json \
 		--process process.lua \
-		${TILEMAKER_PARAMETERS:-}
+		$tilemakerParameters
 	
 	wc --bytes $output
 	ls --size --human-readable $output
@@ -95,7 +96,7 @@ function makeTiles() {
 
 
 echo '==='
-echo 'to update:  for tag in openmaptiles/openmaptiles-tools:7.2 ghcr.io/systemed/tilemaker:master protomaps/go-pmtiles; do docker pull $tag; done'
+echo "to update:  for tag in openmaptiles/openmaptiles-tools:7.2 $image protomaps/go-pmtiles; do docker pull \$tag; done"
 set -x #print out commands
 
 #tilemaker/get-landcover.sh
