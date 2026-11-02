@@ -199,11 +199,19 @@ function GetSurfaceCycleHelper()
 	return ""
 end
 
+function IsBikeShop()
+	-- make sure not to mark a bicycle repair station as a bike shop
+	if Find("amenity") == "bicycle_repair_station" then return false end
+	-- otherwise, mark anything that's got repair or rental
+	return Holds("service:bicycle:repair") and Find("service:bicycle:repair") ~= "no" or Find("service:bicycle:retail") == "yes"
+end
+	
+
 -- used by GetPOIRank() to get override certain cycle related things.
 -- returns nil,nil,nil under most situations
 -- returns rank, class, subclass
 function GetPOIRankCycleHelper()
-	if Holds("service:bicycle:repair") and Find("service:bicycle:repair") ~= "no" or Find("service:bicycle:retail") == "yes" then
+	if IsBikeShop() then
 		-- treat this like:  shop=bicycle.  note that poiRanks["bicycle"] is defined in this file
 		local k='shop'
 		local v='bicycle'
